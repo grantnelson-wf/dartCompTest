@@ -1,0 +1,16 @@
+
+name: FileDepsTreatment
+version: 0.1.0
+description: An experimental treatment for building with each file having its own imports
+
+environment:
+  sdk: '>=2.7.0 <3.0.0'
+
+dependencies:
+  crypto: ^2.1.5
+
+dev_dependencies:
+  dart_dev: ^3.6.1
+  build_runner: ^1.10.0
+  build_test: ^1.2.1
+  build_web_compilers: ^2.9.0
