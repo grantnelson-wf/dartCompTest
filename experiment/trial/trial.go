@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"../treatment"
+	"github.com/Grant-Nelson/dartCompTest/experiment/treatment"
 )
 
 const (
@@ -100,9 +100,9 @@ func (t *Trial) runReplicate(replicate int, results *os.File) {
 
 		// Write results to the result file.
 		result := fmt.Sprintf("%d %d %d %s %.*f\n",
-			e.order, replicate, treatment.Index(), treatment.String(), resultPrecision, secs)
+			t.order, replicate, treatment.Index(), treatment.String(), resultPrecision, secs)
 		results.WriteString(result)
-		e.order++
+		t.order++
 	}
 
 	// sync the results file so if something happens now

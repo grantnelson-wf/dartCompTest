@@ -2,13 +2,21 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
-	"./trial"
+	"github.com/Grant-Nelson/dartCompTest/experiment/trial"
 )
 
 // main is the entry point for the experiment.
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Experiment failed: %v\n", r)
+			os.Exit(1)
+		}
+	}()
+
 	repetitions := 100
 	flag.IntVar(&repetitions, "reps", repetitions,
 		`The number of times to run the experiment.`)
@@ -23,15 +31,16 @@ func main() {
 
 	trial.AddTreatment().
 		Name(`File_Dependencies`).
-		Path(`treatments/filedeps`).
+		Path(`../treatments/filedeps`).
 		RunCommand(`webdev`, `build`)
 
-	trial.AddTreatment().
-		Name(`Library_Dependencies`).
-		Path(`treatments/libdeps`).
-		RunCommand(`webdev`, `build`)
+	// trial.AddTreatment().
+	// 	Name(`Library_Dependencies`).
+	// 	Path(`treatments/libdeps`).
+	// 	RunCommand(`webdev`, `build`)
 
 	trial.Run()
 
+	fmt.Println("Experiment done")
 	os.Exit(0)
 }
