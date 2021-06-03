@@ -17,20 +17,13 @@ class Block {
 
   /// Creates a new block with the given previous block's hash
   /// and the transactions for this block.
-  Block(String prevHash, {List<Transaction> transactions}) {
+  Block(String prevHash, [List<Transaction> transactions]) {
     _timestamp = DateTime.now();
-    _transactions = transactions;
+    _transactions = transactions ?? List<Transaction>();
     _previousHash = prevHash;
     _hash = null;
     _nonce = 0;
     _minerAddress = '';
-  }
-
-  /// Creates a first block for a new chain.
-  factory Block.genesis() {
-    var b = new Block('');
-    b.calculateHash();
-    return b;
   }
 
   /// Timestamp is the time this block was created at.
@@ -57,40 +50,39 @@ class Block {
   /// Calculates the hash for this whole block,
   /// excluding the hash value itself.
   String calculateHash() {
-    var output = AccumulatorSink<Digest>();
-    var input = hashAlgorithm.startChunkedConversion(output)
+    final output = AccumulatorSink<Digest>();
+    final input = hashAlgorithm.startChunkedConversion(output)
       ..add(utf8.encode(_previousHash))
       ..add(utf8.encode(_timestamp.toIso8601String()))
-      ..add(utf8.encode('$_nonce'))
+      ..add(utf8.encode(_nonce.toString()))
       ..add(utf8.encode(_minerAddress));
     for (Transaction transaction in _transactions) {
-      input.add(utf8.encode(transaction.serialize()));
+      input.add(transaction.serialize());
     }
     input.close();
     return output.events.single;
   }
 
   /// Determines if this block, its hash, and transactions are valid.
-  bool get isValid {
+  Future<bool> get isValid async {
     for (Transaction transaction in _transactions) {
-      if (!transaction.isValid) return false;
+      if (!await transaction.isValid) return false;
     }
-    if (calculateHash() != _hash) return false;
-    return true;
+    return calculateHash() == _hash;
   }
 
   /// Gets a human readable string of this block for debugging.
   @override
   String toString() {
-    var buffer = new StringBuffer()
-      ..write('timestamp: $timestamp')
-      ..write('previousHash: $previousHash')
-      ..write('hash: $hash')
-      ..write('nonce: $nonce')
-      ..write('minerAddress: $minerAddress')
-      ..write('transactions:');
+    final buffer = new StringBuffer()
+      ..write('timestamp: $timestamp\n')
+      ..write('previousHash: $previousHash\n')
+      ..write('hash: $hash\n')
+      ..write('nonce: $nonce\n')
+      ..write('minerAddress: $minerAddress\n')
+      ..write('transactions:\n');
     for (Transaction transaction in _transactions) {
-      buffer.write('   $transaction');
+      buffer.write('   $transaction\n');
     }
     return buffer.toString();
   }

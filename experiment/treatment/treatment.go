@@ -110,8 +110,8 @@ func (t *Treatment) Run() float64 {
 // Cleanup will reset to prepare for a run to make it a clean consistent run.
 // This will not be measured.
 func (t *Treatment) Cleanup() {
-	fmt.Printf("   cleaning %s\n", t.name)
 	if len(t.cleanupCmd) > 0 {
+		fmt.Printf("   cleaning %s\n", t.name)
 		cmd := exec.Command(t.cleanupCmd[0], t.cleanupCmd[1:]...)
 		cmd.Dir = t.path
 		cmd.Stderr = os.Stderr

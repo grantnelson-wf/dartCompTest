@@ -31,7 +31,7 @@ func main() {
 
 	trial.AddTreatment().
 		Name(`File_Dependencies`).
-		Path(`../treatments/filedeps`).
+		Path(`treatments/filedeps`).
 		RunCommand(`webdev`, `build`)
 
 	// trial.AddTreatment().
