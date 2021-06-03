@@ -12,12 +12,14 @@ class BlockChain {
   List<Block> _chain;
   List<Transaction> _pending;
   Event _onGrowth;
+  List<Miner> _miners;
 
   /// Creates a new block chain with the given settings.
   BlockChain() {
     _chain = List<Block>();
     _pending = List<Transaction>();
     _onGrowth = Event();
+    _miners = List<Miner>();
   }
 
   /// This event is fired when a block is added to the chain.
@@ -88,8 +90,18 @@ class BlockChain {
   Future<Cancelable> mineNextBlock(String minerAddress) async {
     final block = _nextBlock;
     final miner = Miner(minerAddress);
+    _miners.add(miner);
     miner.mine(block).then(_appendBlock);
     return miner;
+  }
+
+  /// Cancels all running miners.
+  /// Miners will finish current attempt before quitting.
+  void cancelAllMiners() {
+    for (Miner miner in _miners) {
+      miner.cancel();
+    }
+    _miners.clear();
   }
 
   /// Appends the given block into the list if it is
@@ -106,6 +118,9 @@ class BlockChain {
     for (Transaction transaction in block.transactions) {
       if (_pending.contains(transaction)) _pending.remove(transaction);
     }
+
+    // Cancel and clear running miners.
+    cancelAllMiners();
 
     // Notify the change.
     _onGrowth.broadcast();
