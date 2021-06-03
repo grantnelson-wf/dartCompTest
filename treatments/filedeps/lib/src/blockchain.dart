@@ -1,30 +1,40 @@
-import 'package:cryptography/cryptography.dart';
-import 'package:event/event.dart';
+import 'dart:collection';
+
+import 'package:cryptography/cryptography.dart' as cryptography;
+import 'package:event/event.dart' as event;
 
 import 'block.dart';
 import 'constants.dart';
-import 'miner.dart';
 import 'transaction.dart';
-import 'cancelable.dart';
 
 /// A basic block chain.
+///
+/// This block chain doesn't do any voting among divergent chains or
+/// even transmit new blocks and transactions to other chains.
+/// This is just a stand-alone example block chain.
 class BlockChain {
   List<Block> _chain;
   List<Transaction> _pending;
-  Event _onGrowth;
-  List<Miner> _miners;
+  event.Event _onNewTransaction;
+  event.Event _onNewChain;
 
   /// Creates a new block chain with the given settings.
   BlockChain() {
     _chain = List<Block>();
     _pending = List<Transaction>();
-    _onGrowth = Event();
-    _miners = List<Miner>();
+    _onNewTransaction = event.Event();
+    _onNewChain = event.Event();
   }
 
+  /// This event is fired when a transaction is added to the pending transactions.
+  event.Event get onNewTransaction => _onNewTransaction;
+
   /// This event is fired when a block is added to the chain.
-  /// see https://pub.dev/packages/event
-  Event get onGrowth => _onGrowth;
+  /// This also means the list of transactions has been reduced.
+  event.Event get onNewChain => _onNewChain;
+
+  /// Gets the set of pending transactions.
+  UnmodifiableListView<Transaction> get pending => _pending;
 
   /// Determines the current balance for the wallet with the given address.
   /// This does not include any pending transactions.
@@ -56,7 +66,7 @@ class BlockChain {
 
   /// Creates a new transaction and adds it to the pending transactions.
   /// Returns true if the transaction was added, false if not.
-  Future<bool> createTransaction(SimpleKeyPair fromKeys, String toAddress, double amount) async {
+  Future<bool> createTransaction(cryptography.KeyPair fromKeys, String toAddress, double amount) async {
     final transaction = await Transaction.createAndSign(fromKeys, toAddress, amount);
     return addTransaction(transaction);
   }
@@ -70,6 +80,9 @@ class BlockChain {
 
     // Transaction is accepted into pending
     _pending.add(transaction);
+
+    // Notify the change.
+    _onNewTransaction.broadcast();
     return true;
   }
 
@@ -82,31 +95,11 @@ class BlockChain {
   /// should be included since they can't all be included in the block.
   /// With actual block chains overdraw protection should be inforced too.
   /// Transactions must be valid to be put into pending, so they should be still valid.
-  Block get _nextBlock => _pending.isEmpty ? null : new Block(_previousHash, _pending);
-
-  /// Constructs and starts mining the new block.
-  /// If null is returned then there are no transactions to mine,
-  /// otherwise the running miner is returned which can be cancelled.
-  Future<Cancelable> mineNextBlock(String minerAddress) async {
-    final block = _nextBlock;
-    final miner = Miner(minerAddress);
-    _miners.add(miner);
-    miner.mine(block).then(_appendBlock);
-    return miner;
-  }
-
-  /// Cancels all running miners.
-  /// Miners will finish current attempt before quitting.
-  void cancelAllMiners() {
-    for (Miner miner in _miners) {
-      miner.cancel();
-    }
-    _miners.clear();
-  }
+  Block get nextBlock => _pending.isEmpty ? null : new Block(_previousHash, _pending);
 
   /// Appends the given block into the list if it is
   /// valid and follows the previous block.
-  void _appendBlock(Block block) async {
+  void appendBlock(Block block) async {
     if (block == null) return;
     if (block.previousHash != _previousHash) return;
     if (!await block.isValid) return;
@@ -119,11 +112,8 @@ class BlockChain {
       if (_pending.contains(transaction)) _pending.remove(transaction);
     }
 
-    // Cancel and clear running miners.
-    cancelAllMiners();
-
     // Notify the change.
-    _onGrowth.broadcast();
+    _onNewChain.broadcast();
   }
 
   /// Determines if the block chain is valid or not.

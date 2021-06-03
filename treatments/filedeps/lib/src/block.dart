@@ -1,9 +1,8 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
-
 import 'transaction.dart';
+import 'constants.dart';
 
 /// A block stores a single block in the chain.
 /// It contains a set of transactions since the prior chain.
@@ -47,21 +46,25 @@ class Block {
   int get nonce => _nonce;
   set nonce(int nonce) => _nonce = nonce;
 
-  /// Calculates the hash for this whole block,
-  /// excluding the hash value itself.
-  String calculateHash() {
-    final output = AccumulatorSink<Digest>();
-    final input = hashAlgorithm.startChunkedConversion(output)
-      ..add(utf8.encode(_previousHash))
-      ..add(utf8.encode(_timestamp.toIso8601String()))
-      ..add(utf8.encode(_nonce.toString()))
-      ..add(utf8.encode(_minerAddress));
+  /// Serializes this block into bytes.
+  /// This will NOT serialize the hash (nor transaction signatures) since
+  /// it is used when calculating the hash, meaning this can NOT be used
+  /// for transmiting blocks to other chains.
+  List<int> serialize() {
+    var data = List<int>()
+      ..addAll(utf8.encode(_previousHash))
+      ..addAll(utf8.encode(_timestamp.toIso8601String()))
+      ..addAll(utf8.encode(_nonce.toString()))
+      ..addAll(utf8.encode(_minerAddress));
     for (Transaction transaction in _transactions) {
-      input.add(transaction.serialize());
+      data.addAll(transaction.serialize());
     }
-    input.close();
-    return output.events.single;
+    return data;
   }
+
+  /// Calculates the hash for this whole block,
+  /// excluding the hash value itself (and transaction signatures).
+  String calculateHash() => utf8.decode(hashAlgorithm.convert(serialize()).bytes);
 
   /// Determines if this block, its hash, and transactions are valid.
   Future<bool> get isValid async {

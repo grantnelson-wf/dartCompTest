@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography/cryptography.dart' as cryptography;
 
 import 'constants.dart';
 
@@ -29,10 +29,11 @@ class Transaction {
   }
 
   /// Creates a new transaction and signs it for the wallet with the given key pair.
-  static Future<Transaction> createAndSign(SimpleKeyPair fromKeys, String toAddress, double amount) async {
+  static Future<Transaction> createAndSign(cryptography.KeyPair fromKeys, String toAddress, double amount) async {
     final fromAddress = String.fromCharCodes(fromKeys.publicKey.bytes);
     final transaction = new Transaction(DateTime.now(), fromAddress, toAddress, amount);
-    transaction._signature = await signatureAlgorithm.sign(transaction.serialize(), fromKeys);
+    final signature = await signatureAlgorithm.sign(transaction.serialize(), fromKeys);
+    transaction._signature = utf8.decode(signature.bytes);
     return transaction;
   }
 
@@ -40,6 +41,8 @@ class Transaction {
   String get signature => _signature;
 
   /// Serializes this transaction into bytes.
+  /// This will NOT serialize the signature since it is used when signing,
+  /// meaning this can NOT be used for transmiting transactions to other chains.
   List<int> serialize() => List<int>()
     ..addAll(utf8.encode(timestamp.toIso8601String()))
     ..addAll(utf8.encode(fromAddress))
@@ -49,7 +52,10 @@ class Transaction {
   /// Indicates that this transaction and the signature is valid.
   Future<bool> get isValid async {
     if (fromAddress.isEmpty || amount <= 0.0 || signature.isEmpty || toAddress == fromAddress) return false;
-    return signatureAlgorithm.verify(serialize(), signature: signature);
+
+    final key = new cryptography.SimplePublicKey(utf8.encode(fromAddress), type: signatureAlgorithm.keyPairType);
+    final signed = cryptography.Signature(utf8.encode(signature), publicKey: key);
+    return signatureAlgorithm.verify(serialize(), signed);
   }
 
   /// Gets the human readable string for debugging.
