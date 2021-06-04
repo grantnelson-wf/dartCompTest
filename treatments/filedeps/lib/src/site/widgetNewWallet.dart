@@ -5,11 +5,13 @@ import 'package:validators/sanitizers.dart' as sani;
 import 'callback.dart';
 import 'widget.dart';
 
+/// A widget for adding new wallets to the driver.
 class WidgetNewWallet implements Widget {
   final CallBack _callBack;
   DivElement _group;
   InputElement _newWalletName;
 
+  /// Creates a new wallet widget.
   WidgetNewWallet(this._callBack) {
     final text = new DivElement()
       ..innerText = 'Enter a name and click add to create a new wallet:'
@@ -39,8 +41,10 @@ class WidgetNewWallet implements Widget {
       ..append(nameDiv);
   }
 
+  /// Gets the div element containing the widget.
   DivElement get widget => _group;
 
+  /// Handles when the add new wallet button is clicked.
   void _onNewWalletAdd(_) {
     final name = sani.escape(_newWalletName.value);
     if (name.isEmpty) return;

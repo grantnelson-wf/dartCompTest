@@ -10,6 +10,7 @@ import 'miner.dart';
 /// would want to be broken across many machines.
 class MinerGroup implements Cancelable {
   List<Miner> _miners;
+  event.Event _onChanged;
 
   /// The chain that this miner group is working on.
   final BlockChain chain;
@@ -18,6 +19,7 @@ class MinerGroup implements Cancelable {
   MinerGroup(this.chain) {
     this.chain.onNewBlock + _onNewBlock;
     _miners = List<Miner>();
+    _onChanged = event.Event();
   }
 
   /// Starts mining the new block for the chain.
@@ -29,18 +31,24 @@ class MinerGroup implements Cancelable {
 
     final miner = Miner(minerAddress);
     _miners.add(miner);
+    _onChanged.broadcast();
+
     // Kick off mining but do not await the result.
     miner.mine(block).then(chain.appendBlock);
     return miner;
   }
 
+  /// Indicates that the number of miners has changed.
+  event.Event get onChanged => _onChanged;
+
   /// Indicates if there are any miners running.
-  bool get mining => _miners.isNotEmpty;
+  bool get isMining => _miners.isNotEmpty;
+
+  /// Gets the number of miners running.
+  int get minerCount => _miners.length;
 
   /// Handles when a new block is added to the chain.
-  void _onNewBlock(event.EventArgs _) {
-    cancel();
-  }
+  void _onNewBlock(event.EventArgs _) => cancel();
 
   /// Cancels all running miners.
   /// Miners will finish current attempt before quitting.
@@ -49,5 +57,6 @@ class MinerGroup implements Cancelable {
       miner.cancel();
     }
     _miners.clear();
+    _onChanged.broadcast();
   }
 }

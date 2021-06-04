@@ -6,22 +6,29 @@ import 'package:event/event.dart' as event;
 import 'callback.dart';
 import 'page.dart';
 
+// Driver is the main data and event handler for running the block chain example site.
 class Driver implements CallBack {
-  final Page _page;
+  Page _page;
   List<Wallet> _wallets;
   BlockChain _chain;
   MinerGroup _minerGroup;
 
-  Driver(this._page) {
+  /// Creates a new driver for the block chain example site.
+  Driver() {
+    _page = Page();
     _wallets = List<Wallet>();
     _chain = BlockChain();
     _chain.onNewBlock + _onNewBlock;
     _chain.onNewTransaction + _onNewTransaction;
     _minerGroup = MinerGroup(_chain);
+    _minerGroup.onChanged + _onMinersChanged;
+    _page.setupPage(this);
   }
 
+  /// Gets the wallets being used in this chain.
   UnmodifiableListView<Wallet> get wallets => UnmodifiableListView(_wallets);
 
+  /// Gets the balance for each wallet.
   Map<Wallet, double> get balances {
     final result = Map<Wallet, double>();
     for (Wallet wallet in _wallets) {
@@ -30,11 +37,20 @@ class Driver implements CallBack {
     return result;
   }
 
+  /// Find a wallet with the given name.
   Wallet findWallet(String name) {
     for (Wallet wallet in _wallets) {
       if (wallet.name == name) return wallet;
     }
     return null;
+  }
+
+  /// Gets the name of a wallet given the address.
+  String nameForAddress(ByteData address) {
+    for (Wallet wallet in _wallets) {
+      if (wallet.address == address) return wallet.name;
+    }
+    return 'Unknown';
   }
 
   /// Adds a new wallet with the given name.
@@ -69,4 +85,7 @@ class Driver implements CallBack {
 
   /// Handles when a new block is added to the chain.
   void _onNewTransaction(event.EventArgs _) => _page.updatePending(_chain.pending);
+
+  /// Handles when the mining group has changed state.
+  void _onMinersChanged(event.EventArgs _) => _page.updateMiningState(_minerGroup.isMining);
 }

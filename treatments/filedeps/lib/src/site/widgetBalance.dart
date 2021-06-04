@@ -1,24 +1,28 @@
 import 'dart:html';
 
 import 'package:FileDepsTreatment/blockchain.dart';
-import 'package:validators/sanitizers.dart' as sani;
 
 import 'callback.dart';
 import 'widget.dart';
 
+/// A widget for showing the balances for every wallet.
 class WidgetBalance implements Widget {
   final CallBack _callBack;
   DivElement _group;
   TableElement _balanceTable;
 
+  /// Creates a new balance widget.
   WidgetBalance(this._callBack) {
     final text = new DivElement()
       ..innerText = 'The balances for all wallets:'
       ..style.marginBottom = '4px';
 
-    _balanceTable = new TableElement()..style.marginLeft = '10px';
+    _balanceTable = TableElement()
+      ..style.marginLeft = '10px'
+      ..style.border = 'none'
+      ..style.borderCollapse = 'collapse';
 
-    _group = new DivElement()
+    _group = DivElement()
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'
@@ -27,23 +31,24 @@ class WidgetBalance implements Widget {
       ..append(_balanceTable);
   }
 
+  /// Gets the div element containing the widget.
   DivElement get widget => _group;
 
+  /// Updates the balances for each wallet.
   void updateBalances(Map<Wallet, double> balances) {
     final rows = List<TableRowElement>();
 
-    final header = TableRowElement()
-      ..append(TableCellElement()..text = 'name')
-      ..append(TableCellElement()..text = 'amount')
-      ..append(TableCellElement()..text = 'address')
-      ..style.fontWeight = 'bold';
-    rows.add(header);
-
     balances.forEach((wallet, amount) {
       final row = TableRowElement()
-        ..append(TableCellElement()..text = wallet.name) // already escaped
-        ..append(TableCellElement()..text = '$amount')
-        ..append(TableCellElement()..text = sani.escape(wallet.address.toString()));
+        ..append(TableCellElement()
+          ..text = '${wallet.name}:' // already escaped
+          ..style.fontWeight = 'bold'
+          ..style.paddingLeft = '5px'
+          ..style.paddingRight = '5px')
+        ..append(TableCellElement()
+          ..text = '$amount'
+          ..style.paddingLeft = '5px'
+          ..style.paddingRight = '5px');
       rows.add(row);
     });
 

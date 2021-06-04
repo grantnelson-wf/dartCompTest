@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:event/event.dart' as event;
 
-import '../blockchain.dart';
 import 'bytedata.dart';
 import 'block.dart';
 import 'constants.dart';
@@ -106,8 +105,8 @@ class BlockChain {
   /// valid and follows the previous block.
   void appendBlock(Block block) async {
     if (block == null) return;
-    if (block.previousHash != _previousHash) return;
     if (!await block.isValid) return;
+    if (block.previousHash != _previousHash) return;
 
     // Block is accepted onto the chain.
     _chain.add(block);

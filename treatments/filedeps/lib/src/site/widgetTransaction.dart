@@ -6,6 +6,7 @@ import 'package:FileDepsTreatment/blockchain.dart';
 import 'callback.dart';
 import 'widget.dart';
 
+/// A widget for adding new pending transactions to the chain.
 class WidgetTransaction implements Widget {
   final CallBack _callBack;
   DivElement _group;
@@ -13,6 +14,7 @@ class WidgetTransaction implements Widget {
   SelectElement _transactToName;
   InputElement _transactAmount;
 
+  /// Creates a new transaction widget.
   WidgetTransaction(this._callBack) {
     final text = new DivElement()
       ..innerText = 'Create a new transaction which will pend until the next block. ' +
@@ -63,8 +65,10 @@ class WidgetTransaction implements Widget {
       ..append(nameDiv);
   }
 
+  /// Gets the div element containing the widget.
   DivElement get widget => _group;
 
+  /// Handles when the transact button is clicked.
   void _onMakeTransaction(_) {
     final fromName = _transactFromName.value;
     final toName = _transactToName.value;
@@ -74,6 +78,7 @@ class WidgetTransaction implements Widget {
     _transactAmount.value = '';
   }
 
+  /// Updates the names for the wallets with the given set of wallets.
   void updateWalletNames(UnmodifiableListView<Wallet> wallets) {
     final fromOptions = List<OptionElement>();
     final toOptions = List<OptionElement>();

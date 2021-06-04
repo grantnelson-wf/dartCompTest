@@ -1,8 +1,9 @@
-export 'src/block.dart';
-export 'src/blockchain.dart';
-export 'src/cancelable.dart';
-export 'src/constants.dart';
-export 'src/miner.dart';
-export 'src/minergroup.dart';
-export 'src/transaction.dart';
-export 'src/wallet.dart';
+export 'src/blockchain/block.dart';
+export 'src/blockchain/blockchain.dart';
+export 'src/blockchain/bytedata.dart';
+export 'src/blockchain/cancelable.dart';
+export 'src/blockchain/constants.dart';
+export 'src/blockchain/miner.dart';
+export 'src/blockchain/minergroup.dart';
+export 'src/blockchain/transaction.dart';
+export 'src/blockchain/wallet.dart';

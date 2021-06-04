@@ -1,5 +1,6 @@
-import 'dart:math';
+import 'dart:async';
 
+import 'blockchain.dart';
 import 'block.dart';
 import 'bytedata.dart';
 import 'cancelable.dart';
@@ -8,6 +9,7 @@ import 'constants.dart';
 /// The miner is used for an account to mine new blocks.
 class Miner implements Cancelable {
   bool _mining;
+  int _prevNonce;
 
   /// The address of the wallet this miner belongs to.
   final ByteData address;
@@ -15,17 +17,17 @@ class Miner implements Cancelable {
   /// Creates a new block miner for the given [address].
   Miner(this.address) {
     _mining = false;
+    _prevNonce = -1;
   }
 
   /// This will generate the next nonce to use while mining.
   /// This can be overridden to allow for multiple machines to take different
-  /// subspaces of the integer space search through.
-  int generateNewNonce() => Random().nextInt(maxNonce);
-
-  /// Computes a single step of the mine.
-  Future _grind(Block block) async {
-    block.nonce = generateNewNonce();
-    block.hash = block.calculateHash();
+  /// subspaces of the integer space search through or be randomized.
+  /// Since here we are usually only starting only one miner per address
+  /// and per block we can simply step the nonce forward without repeating hashes.
+  int generateNewNonce() {
+    _prevNonce++;
+    return _prevNonce;
   }
 
   /// This will modify the nonce and rehash the given block until the
@@ -33,14 +35,19 @@ class Miner implements Cancelable {
   /// The future will return the block if a solution is found, null if cancelled.
   Future<Block> mine(Block block) async {
     _mining = true;
-    var attempts = 0; // TODO: REMOVE
     block.minerAddress = address;
     while (_mining) {
-      await _grind(block);
-      print(">mine: $address => ${block.hash}"); // TODO: REMOVE
-      if (block.hash.startsWith(difficulty)) return block;
-      attempts++; // TODO: REMOVE
-      if (attempts > 100) break; // TODO: REMOVE
+      var success = await Future<bool>.delayed(miningStepPause, () {
+        for (int i = 0; i < miningStepSize; i++) {
+          block.nonce = generateNewNonce();
+          block.hash = block.calculateHash();
+
+          if (!_mining) return false;
+          if (block.hash.startsWith(difficulty)) return true;
+        }
+        return false;
+      });
+      if (success) return block;
     }
     return null;
   }
@@ -49,8 +56,5 @@ class Miner implements Cancelable {
   bool get mining => _mining;
 
   /// This will stop the current mine if one is running.
-  void cancel() {
-    print(">stop: $address"); // TODO: REMOVE
-    _mining = false;
-  }
+  void cancel() => _mining = false;
 }
