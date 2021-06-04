@@ -92,8 +92,8 @@ func (t *Trial) runReplicate(replicate int, results *os.File) {
 	applications := t.randomizeApplicationOrder()
 	for _, treatment := range applications {
 
-		// Run cleanup
-		treatment.Cleanup()
+		// Prepare the treatment.
+		treatment.Prepare()
 
 		// Run treatment
 		secs := treatment.Run()

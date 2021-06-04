@@ -27,13 +27,13 @@ type Treatment struct {
 	// path is the folder to run the command within.
 	path string
 
-	// runCmd is the command to run and will be measured.
-	runCmd []string
-
-	// cleanupCmd is the command to run to cleanup.
+	// prepareCmd is the command to run to prepare the treatment.
 	// This command will not be measured.
 	// If empty then nothing will be run.
-	cleanupCmd []string
+	prepareCmd []string
+
+	// runCmd is the command to run and will be measured.
+	runCmd []string
 }
 
 // New will construct a new treatment that can be run as an experimental unit.
@@ -42,8 +42,8 @@ func New(index int) *Treatment {
 		index:      index,
 		name:       `Unnamed`,
 		path:       `.`,
+		prepareCmd: nil,
 		runCmd:     nil,
-		cleanupCmd: nil,
 	}
 }
 
@@ -57,7 +57,6 @@ func (t *Treatment) Index() int {
 // Returns the receiver so that these calls can be chained together.
 func (t *Treatment) Name(name string) *Treatment {
 	t.name = name
-
 	return t
 }
 
@@ -74,15 +73,13 @@ func (t *Treatment) Path(parts ...string) *Treatment {
 func (t *Treatment) RunCommand(cmd string, args ...string) *Treatment {
 	t.runCmd = append([]string{cmd}, args...)
 	return t
-
 }
 
-// CleanupCommand is the command to run to cleanup.
+// PrepareCommand is the command to run to prepare the treatment.
 // This command will not be measured. If not set then nothing will be run.
 // Returns the receiver so that these calls can be chained together.
-// Cleanup will be run before the main run command so it can also be used to prepare the treatment.
-func (t *Treatment) CleanupCommand(cmd string, args ...string) *Treatment {
-	t.cleanupCmd = append([]string{cmd}, args...)
+func (t *Treatment) PrepareCommand(cmd string, args ...string) *Treatment {
+	t.prepareCmd = append([]string{cmd}, args...)
 	return t
 }
 
@@ -107,17 +104,17 @@ func (t *Treatment) Run() float64 {
 	return dur.Seconds()
 }
 
-// Cleanup will reset to prepare for a run to make it a clean consistent run.
+// Prepare will prepare the treatment for a run to make it a clean consistent run.
 // This will not be measured.
-func (t *Treatment) Cleanup() {
-	if len(t.cleanupCmd) > 0 {
-		fmt.Printf("   cleaning %s\n", t.name)
-		cmd := exec.Command(t.cleanupCmd[0], t.cleanupCmd[1:]...)
+func (t *Treatment) Prepare() {
+	if len(t.prepareCmd) > 0 {
+		fmt.Printf("   preparing %s\n", t.name)
+		cmd := exec.Command(t.prepareCmd[0], t.prepareCmd[1:]...)
 		cmd.Dir = t.path
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		if err := cmd.Run(); err != nil {
-			panic(fmt.Errorf("%s failed to cleanup: %v", t.name, err))
+			panic(fmt.Errorf("%s failed to prepare: %v", t.name, err))
 		}
 	}
 }
