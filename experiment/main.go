@@ -34,10 +34,10 @@ func main() {
 		Path(`treatments/filedeps`).
 		RunCommand(`webdev`, `build`)
 
-	// trial.AddTreatment().
-	// 	Name(`Library_Dependencies`).
-	// 	Path(`treatments/libdeps`).
-	// 	RunCommand(`webdev`, `build`)
+	trial.AddTreatment().
+		Name(`Library_Dependencies`).
+		Path(`treatments/libdeps`).
+		RunCommand(`webdev`, `build`)
 
 	trial.Run()
 
