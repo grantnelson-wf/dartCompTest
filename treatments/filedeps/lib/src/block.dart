@@ -30,7 +30,7 @@ class Block {
   DateTime get timestamp => _timestamp;
 
   /// Gets the list of the transactions.
-  UnmodifiableListView<Transaction> get transactions => _transactions;
+  UnmodifiableListView<Transaction> get transactions => UnmodifiableListView(_transactions);
 
   /// Gets the previous block's hash value.
   ByteData get previousHash => _previousHash;

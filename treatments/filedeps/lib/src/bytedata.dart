@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Wraps an integer list to make it work for addresses and hashes.
 class ByteData {
   final List<int> bytes;
@@ -8,7 +10,7 @@ class ByteData {
   /// Creates new data which is just the [count] number of zeros.
   factory ByteData.zeros(int count) => ByteData(List<int>.filled(count, 0));
 
-  /// Determines if this data starts with the other data.
+  /// Determines if this data starts with the [other] data.
   bool startsWith(ByteData other) {
     final count = other.bytes.length;
     if (bytes.length < count) return false;
@@ -20,15 +22,7 @@ class ByteData {
 
   /// Gets a human readable string for debugging.
   @override
-  String toString() {
-    final buffer = new StringBuffer();
-    var first = true;
-    for (int value in bytes) {
-      buffer.write(first ? '$value' : ', $value');
-      first = false;
-    }
-    return buffer.toString();
-  }
+  String toString() => '[${base64.encode(bytes)}]';
 
   /// Used to determine if the given [other] is equivalent to this data.
   @override

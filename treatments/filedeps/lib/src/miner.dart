@@ -33,11 +33,14 @@ class Miner implements Cancelable {
   /// The future will return the block if a solution is found, null if cancelled.
   Future<Block> mine(Block block) async {
     _mining = true;
+    var attempts = 0; // TODO: REMOVE
     block.minerAddress = address;
     while (_mining) {
       await _grind(block);
-      if (!_mining) return null;
-      if (_mining && block.hash.startsWith(difficulty)) return block;
+      print(">mine: $address => ${block.hash}"); // TODO: REMOVE
+      if (block.hash.startsWith(difficulty)) return block;
+      attempts++; // TODO: REMOVE
+      if (attempts > 100) break; // TODO: REMOVE
     }
     return null;
   }
@@ -46,5 +49,8 @@ class Miner implements Cancelable {
   bool get mining => _mining;
 
   /// This will stop the current mine if one is running.
-  void cancel() => _mining = false;
+  void cancel() {
+    print(">stop: $address"); // TODO: REMOVE
+    _mining = false;
+  }
 }

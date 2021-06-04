@@ -60,7 +60,12 @@ class Driver implements CallBack {
       findWallet(fromName)?.transfer(_chain, findWallet(toName), amount);
 
   /// Handles when a new block is added to the chain.
-  void _onNewBlock(event.EventArgs _) => _page.updateChain(_chain.chain);
+  /// This also indicates the pending transactions and balances might have changed.
+  void _onNewBlock(event.EventArgs _) {
+    _page.updateChain(_chain.chain);
+    _page.updatePending(_chain.pending);
+    _page.updateBalances(balances);
+  }
 
   /// Handles when a new block is added to the chain.
   void _onNewTransaction(event.EventArgs _) => _page.updatePending(_chain.pending);

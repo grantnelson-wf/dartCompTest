@@ -29,6 +29,7 @@ class MinerGroup implements Cancelable {
 
     final miner = Miner(minerAddress);
     _miners.add(miner);
+    // Kick off mining but do not await the result.
     miner.mine(block).then(chain.appendBlock);
     return miner;
   }

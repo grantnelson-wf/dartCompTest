@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Grant-Nelson/dartCompTest/experiment/trial"
+	"github.com/grantnelson-wf/dartCompTest/experiment/trial"
 )
 
 // main is the entry point for the experiment.

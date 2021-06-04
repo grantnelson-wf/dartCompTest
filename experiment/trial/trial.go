@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Grant-Nelson/dartCompTest/experiment/treatment"
+	"github.com/grantnelson-wf/dartCompTest/experiment/treatment"
 )
 
 const (

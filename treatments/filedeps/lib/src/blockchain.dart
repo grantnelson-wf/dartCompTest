@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:event/event.dart' as event;
 
+import '../blockchain.dart';
 import 'bytedata.dart';
 import 'block.dart';
 import 'constants.dart';
@@ -99,7 +100,7 @@ class BlockChain {
   /// should be included since they can't all be included in the block.
   /// With actual block chains overdraw protection should be inforced too.
   /// Transactions must be valid to be put into pending, so they should be still valid.
-  Block get nextBlock => _pending.isEmpty ? null : new Block(_previousHash, _pending);
+  Block get nextBlock => _pending.isEmpty ? null : new Block(_previousHash, List<Transaction>.from(_pending));
 
   /// Appends the given block into the list if it is
   /// valid and follows the previous block.
