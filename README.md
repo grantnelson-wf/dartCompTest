@@ -10,6 +10,15 @@ Experimental test of dart compiling different type of code bases.
 
 > `go run ./experiment/main.go`
 
+## Running Analysis on Results
+
+You may need to add some python packages, use pip as needed.
+
+This assumes the results are in `./results.txt`
+
+> `cd analysis`
+> `python3 anova.py`
+
 ## Running Individual Treatments
 
 Each one may have it's own unique method for running but in general it will look like.

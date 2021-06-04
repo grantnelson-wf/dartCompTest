@@ -74,7 +74,7 @@ func (t *Trial) Run() {
 	}
 	defer results.Close()
 
-	results.WriteString("Start Time: " + t.startTime.String() + "\n")
+	// Write data column names to the file.
 	results.WriteString("order replicate index name seconds\n")
 
 	// Run all the repetitions of the experiment.
