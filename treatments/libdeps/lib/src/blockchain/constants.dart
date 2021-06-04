@@ -1,7 +1,4 @@
-import 'package:crypto/crypto.dart' as crypto;
-import 'package:cryptography/cryptography.dart' as cryptography;
-
-import 'bytedata.dart';
+part of blockchain;
 
 /// The maximum integer which can be used for the block nonce.
 const int maxNonce = 2 ^ 53 - 1;

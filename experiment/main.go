@@ -17,7 +17,7 @@ func main() {
 		}
 	}()
 
-	repetitions := 100
+	repetitions := 10
 	flag.IntVar(&repetitions, "reps", repetitions,
 		`The number of times to run the experiment.`)
 
