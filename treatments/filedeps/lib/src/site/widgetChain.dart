@@ -22,6 +22,7 @@ class WidgetChain implements Widget {
     _chainBlocks = DivElement()..style.marginLeft = '10px';
 
     _group = DivElement()
+      ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'

@@ -34,6 +34,7 @@ class WidgetMining implements Widget {
       ..append(_cancelButton);
 
     _group = DivElement()
+      ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'

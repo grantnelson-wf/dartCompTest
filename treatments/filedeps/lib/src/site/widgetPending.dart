@@ -24,6 +24,7 @@ class WidgetPending implements Widget {
       ..style.borderCollapse = 'collapse';
 
     _group = new DivElement()
+      ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'

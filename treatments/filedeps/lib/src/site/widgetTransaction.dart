@@ -57,6 +57,7 @@ class WidgetTransaction implements Widget {
       ..append(addButton);
 
     _group = new DivElement()
+      ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'

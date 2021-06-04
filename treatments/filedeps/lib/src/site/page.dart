@@ -33,6 +33,7 @@ class Page {
     _chain = WidgetChain(callBack);
 
     document.body
+      ..style.backgroundColor = 'lightgrey'
       ..append(_newWallet.widget)
       ..append(_transaction.widget)
       ..append(_mining.widget)
