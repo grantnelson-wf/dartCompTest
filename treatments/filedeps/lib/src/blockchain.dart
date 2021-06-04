@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:event/event.dart' as event;
 
+import 'bytedata.dart';
 import 'block.dart';
 import 'constants.dart';
 import 'transaction.dart';
@@ -16,14 +17,14 @@ class BlockChain {
   List<Block> _chain;
   List<Transaction> _pending;
   event.Event _onNewTransaction;
-  event.Event _onNewChain;
+  event.Event _onNewBlock;
 
   /// Creates a new block chain with the given settings.
   BlockChain() {
     _chain = List<Block>();
     _pending = List<Transaction>();
     _onNewTransaction = event.Event();
-    _onNewChain = event.Event();
+    _onNewBlock = event.Event();
   }
 
   /// This event is fired when a transaction is added to the pending transactions.
@@ -31,14 +32,17 @@ class BlockChain {
 
   /// This event is fired when a block is added to the chain.
   /// This also means the list of transactions has been reduced.
-  event.Event get onNewChain => _onNewChain;
+  event.Event get onNewBlock => _onNewBlock;
 
   /// Gets the set of pending transactions.
-  UnmodifiableListView<Transaction> get pending => _pending;
+  UnmodifiableListView<Transaction> get pending => UnmodifiableListView(_pending);
+
+  /// Gets the set of block chain set of chains.
+  UnmodifiableListView<Block> get chain => UnmodifiableListView(_chain);
 
   /// Determines the current balance for the wallet with the given address.
   /// This does not include any pending transactions.
-  double balance(String address) {
+  double balance(ByteData address) {
     var amount = 0.0;
     for (Block block in _chain) {
       for (Transaction transaction in block.transactions) {
@@ -52,8 +56,8 @@ class BlockChain {
 
   /// Gets the list of all addresses that have transactions in the chain.
   /// This does not include any pending transactions.
-  List<String> allAddresses() {
-    final addresses = Set<String>();
+  List<ByteData> allAddresses() {
+    final addresses = Set<ByteData>();
     for (Block block in _chain) {
       for (Transaction transaction in block.transactions) {
         addresses.add(transaction.toAddress);
@@ -61,12 +65,12 @@ class BlockChain {
       }
       addresses.add(block.minerAddress);
     }
-    return List<String>.from(addresses);
+    return List<ByteData>.from(addresses);
   }
 
   /// Creates a new transaction and adds it to the pending transactions.
   /// Returns true if the transaction was added, false if not.
-  Future<bool> createTransaction(cryptography.KeyPair fromKeys, String toAddress, double amount) async {
+  Future<bool> createTransaction(cryptography.KeyPair fromKeys, ByteData toAddress, double amount) async {
     final transaction = await Transaction.createAndSign(fromKeys, toAddress, amount);
     return addTransaction(transaction);
   }
@@ -87,7 +91,7 @@ class BlockChain {
   }
 
   /// Gets the previous hash value or an empty string if chain is empty.
-  String get _previousHash => _chain.last?.hash ?? '';
+  ByteData get _previousHash => _chain.isNotEmpty ? _chain.last?.hash : ByteData([]);
 
   /// Constructs the next block to start mining.
   ///
@@ -113,12 +117,12 @@ class BlockChain {
     }
 
     // Notify the change.
-    _onNewChain.broadcast();
+    _onNewBlock.broadcast();
   }
 
   /// Determines if the block chain is valid or not.
   Future<bool> get isValid async {
-    var previousHash = '';
+    ByteData previousHash;
     for (Block block in _chain) {
       if (block.previousHash == previousHash) return false;
       if (!await block.isValid) return false;

@@ -1,5 +1,6 @@
 import 'package:cryptography/cryptography.dart' as cryptography;
 
+import 'bytedata.dart';
 import 'blockchain.dart';
 import 'cancelable.dart';
 import 'minergroup.dart';
@@ -20,7 +21,7 @@ class Wallet {
   }
 
   /// Gets the unique address for this wallet.
-  String get address => String.fromCharCodes(_keys.publicKey.bytes);
+  ByteData get address => ByteData(_keys.publicKey.bytes);
 
   /// Gets or sets the name to show for this wallet.
   String get name => _name;
@@ -33,7 +34,7 @@ class Wallet {
   /// Transfers an amount from this wallet to the given receiver wallet.
   /// Returns true if the transaction was added, false if not.
   Future<bool> transfer(BlockChain chain, Wallet receiver, double amount) async =>
-      chain.createTransaction(_keys, receiver.address, amount);
+      chain.createTransaction(_keys, receiver?.address ?? '', amount ?? 0.0);
 
   /// Starts mining the next block by joining the given miner group.
   /// Returns the cancelable to cancel mining or null if there is nothing to mine.

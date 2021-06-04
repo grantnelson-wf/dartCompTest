@@ -1,28 +1,29 @@
 import 'dart:collection';
 import 'dart:convert';
 
-import 'transaction.dart';
+import 'bytedata.dart';
 import 'constants.dart';
+import 'transaction.dart';
 
 /// A block stores a single block in the chain.
 /// It contains a set of transactions since the prior chain.
 class Block {
   DateTime _timestamp;
   List<Transaction> _transactions;
-  String _previousHash;
-  String _hash;
+  ByteData _previousHash;
+  ByteData _hash;
   int _nonce;
-  String _minerAddress;
+  ByteData _minerAddress;
 
   /// Creates a new block with the given previous block's hash
   /// and the transactions for this block.
-  Block(String prevHash, [List<Transaction> transactions]) {
+  Block(ByteData prevHash, [List<Transaction> transactions]) {
     _timestamp = DateTime.now();
     _transactions = transactions ?? List<Transaction>();
     _previousHash = prevHash;
     _hash = null;
     _nonce = 0;
-    _minerAddress = '';
+    _minerAddress = null;
   }
 
   /// Timestamp is the time this block was created at.
@@ -32,15 +33,15 @@ class Block {
   UnmodifiableListView<Transaction> get transactions => _transactions;
 
   /// Gets the previous block's hash value.
-  String get previousHash => _previousHash;
+  ByteData get previousHash => _previousHash;
 
   /// Gets or sets this block's current hash value.
-  String get hash => _hash;
-  set hash(String hash) => _hash = hash;
+  ByteData get hash => _hash;
+  set hash(ByteData hash) => _hash = hash;
 
   /// Gets or sets the address of the account/wallet which mined this block.
-  String get minerAddress => _minerAddress;
-  set minerAddress(String address) => _minerAddress = address;
+  ByteData get minerAddress => _minerAddress;
+  set minerAddress(ByteData address) => _minerAddress = address;
 
   /// Gets or sets this block's nonce value.
   int get nonce => _nonce;
@@ -52,10 +53,10 @@ class Block {
   /// for transmiting blocks to other chains.
   List<int> serialize() {
     var data = List<int>()
-      ..addAll(utf8.encode(_previousHash))
+      ..addAll(_previousHash.bytes)
       ..addAll(utf8.encode(_timestamp.toIso8601String()))
       ..addAll(utf8.encode(_nonce.toString()))
-      ..addAll(utf8.encode(_minerAddress));
+      ..addAll(_minerAddress.bytes);
     for (Transaction transaction in _transactions) {
       data.addAll(transaction.serialize());
     }
@@ -64,7 +65,7 @@ class Block {
 
   /// Calculates the hash for this whole block,
   /// excluding the hash value itself (and transaction signatures).
-  String calculateHash() => utf8.decode(hashAlgorithm.convert(serialize()).bytes);
+  ByteData calculateHash() => ByteData(hashAlgorithm.convert(serialize()).bytes);
 
   /// Determines if this block, its hash, and transactions are valid.
   Future<bool> get isValid async {

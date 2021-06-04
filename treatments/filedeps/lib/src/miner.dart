@@ -1,15 +1,16 @@
 import 'dart:math';
 
 import 'block.dart';
-import 'constants.dart';
+import 'bytedata.dart';
 import 'cancelable.dart';
+import 'constants.dart';
 
 /// The miner is used for an account to mine new blocks.
 class Miner implements Cancelable {
   bool _mining;
 
   /// The address of the wallet this miner belongs to.
-  final String address;
+  final ByteData address;
 
   /// Creates a new block miner for the given [address].
   Miner(this.address) {
@@ -21,6 +22,12 @@ class Miner implements Cancelable {
   /// subspaces of the integer space search through.
   int generateNewNonce() => Random().nextInt(maxNonce);
 
+  /// Computes a single step of the mine.
+  Future _grind(Block block) async {
+    block.nonce = generateNewNonce();
+    block.hash = block.calculateHash();
+  }
+
   /// This will modify the nonce and rehash the given block until the
   /// difficulty challange has been reached. The given block will be modified.
   /// The future will return the block if a solution is found, null if cancelled.
@@ -28,9 +35,9 @@ class Miner implements Cancelable {
     _mining = true;
     block.minerAddress = address;
     while (_mining) {
-      block.nonce = generateNewNonce();
-      block.hash = block.calculateHash();
-      if (block.hash.startsWith(difficulty)) return block;
+      await _grind(block);
+      if (!_mining) return null;
+      if (_mining && block.hash.startsWith(difficulty)) return block;
     }
     return null;
   }

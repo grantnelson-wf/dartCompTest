@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart' as cryptography;
 
+import 'bytedata.dart';
 import 'constants.dart';
 
 // The description of the transfer of some amount from one address to another.
@@ -11,50 +12,50 @@ class Transaction {
 
   /// The address to take the amount from.
   /// This address must have signed this transaction to be valid.
-  final String fromAddress;
+  final ByteData fromAddress;
 
   /// The address to give the amount to.
-  final String toAddress;
+  final ByteData toAddress;
 
   /// The amount being transfered between the addresses.
   final double amount;
 
   /// The signature of the from address to ensure this
   /// transaction was approved of by the person giving money (fromAddress).
-  String _signature;
+  ByteData _signature;
 
   /// Creates an existing transaction with the given values.
-  Transaction(this.timestamp, this.fromAddress, this.toAddress, this.amount, [String signature = '']) {
+  Transaction(this.timestamp, this.fromAddress, this.toAddress, this.amount, [ByteData signature]) {
     _signature = signature;
   }
 
   /// Creates a new transaction and signs it for the wallet with the given key pair.
-  static Future<Transaction> createAndSign(cryptography.KeyPair fromKeys, String toAddress, double amount) async {
-    final fromAddress = String.fromCharCodes(fromKeys.publicKey.bytes);
+  static Future<Transaction> createAndSign(cryptography.KeyPair fromKeys, ByteData toAddress, double amount) async {
+    final fromAddress = ByteData(fromKeys.publicKey.bytes);
     final transaction = new Transaction(DateTime.now(), fromAddress, toAddress, amount);
     final signature = await signatureAlgorithm.sign(transaction.serialize(), fromKeys);
-    transaction._signature = utf8.decode(signature.bytes);
+    transaction._signature = ByteData(signature.bytes);
     return transaction;
   }
 
   /// The signature for this transaction.
-  String get signature => _signature;
+  ByteData get signature => _signature;
 
   /// Serializes this transaction into bytes.
   /// This will NOT serialize the signature since it is used when signing,
   /// meaning this can NOT be used for transmiting transactions to other chains.
   List<int> serialize() => List<int>()
     ..addAll(utf8.encode(timestamp.toIso8601String()))
-    ..addAll(utf8.encode(fromAddress))
-    ..addAll(utf8.encode(toAddress))
+    ..addAll(fromAddress.bytes)
+    ..addAll(toAddress.bytes)
     ..addAll(utf8.encode(amount.toString()));
 
   /// Indicates that this transaction and the signature is valid.
   Future<bool> get isValid async {
-    if (fromAddress.isEmpty || amount <= 0.0 || signature.isEmpty || toAddress == fromAddress) return false;
+    if (fromAddress == null || amount <= 0.0 || signature == null || toAddress == fromAddress) return false;
 
-    final key = new cryptography.SimplePublicKey(utf8.encode(fromAddress), type: signatureAlgorithm.keyPairType);
-    final signed = cryptography.Signature(utf8.encode(signature), publicKey: key);
+    final key = new cryptography.PublicKey(fromAddress.bytes);
+    final signed = cryptography.Signature(signature.bytes, publicKey: key);
     return signatureAlgorithm.verify(serialize(), signed);
   }
 

@@ -6,6 +6,9 @@ class CallBack {
   /// Starts all the wallets mining.
   void startMining() {}
 
+  /// Cancel all the wallets mining.
+  void cancelMining() {}
+
   /// Creates a new pending transaction between the wallets with the given names.
   void newTransaction(String fromName, String toName, double amount) {}
 }
