@@ -17,15 +17,15 @@ part 'widgetNewWallet.dart';
 part 'widgetPending.dart';
 part 'widgetTransaction.dart';
 
-// Driver is the main data and event handler for running the block chain example site.
-class Driver implements CallBack {
+// This is the main data and event handler for running the block chain example site.
+class Site implements CallBack {
   Page _page;
   List<Wallet> _wallets;
   BlockChain _chain;
   MinerGroup _minerGroup;
 
   /// Creates a new driver for the block chain example site.
-  Driver() {
+  Site() {
     _page = Page();
     _wallets = List<Wallet>();
     _chain = BlockChain();

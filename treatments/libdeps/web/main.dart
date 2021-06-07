@@ -5,9 +5,9 @@ import 'package:LibDepsTreatment/site.dart';
 void main() {
   document.title = "LibDepsTreatment Block Chain Treatment";
 
-  final driver = Driver();
-  driver.addNewWallet('Jim');
-  driver.addNewWallet('Jill');
-  driver.addNewWallet('Jack');
-  driver.addNewWallet('Sal');
+  final site = Site();
+  site.addNewWallet('Jim');
+  site.addNewWallet('Jill');
+  site.addNewWallet('Jack');
+  site.addNewWallet('Sal');
 }

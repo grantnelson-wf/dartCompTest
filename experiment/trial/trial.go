@@ -70,6 +70,12 @@ func (t *Trial) AddTreatment() *treatment.Treatment {
 	return treatment
 }
 
+// SetTimeouts will set how long each command is given before it times out.
+func (t *Trial) SetTimeouts(prepTimeout, runTimeout time.Duration) {
+	t.prepTimeout = prepTimeout
+	t.runTimeout = runTimeout
+}
+
 // Run runs the full experiment.
 func (t *Trial) Run() {
 	t.startTime = time.Now()
