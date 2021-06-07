@@ -17,6 +17,7 @@ You may need to add some python packages, use pip as needed.
 This assumes the results are in `./results.txt`
 
 > `cd analysis`
+>
 > `python3 anova.py`
 
 ## Running Individual Treatments
@@ -24,7 +25,9 @@ This assumes the results are in `./results.txt`
 Each one may have it's own unique method for running but in general it will look like.
 
 > `cd treatments/filedeps`
+>
 > `pub get`
+>
 > `webdev serve --no-injected-client`
 
 ## On Treatment Timeout or Failure

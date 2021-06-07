@@ -66,7 +66,7 @@ func New(repetitions int, resultFile string) *Trial {
 		prepTimeout: time.Minute,
 		runTimeout:  time.Minute,
 		prepWait:    0,
-		runWait:     0,
+		runWait:     time.Second * 2,
 		repetitions: repetitions,
 		resultFile:  resultFile,
 		treatments:  nil,
