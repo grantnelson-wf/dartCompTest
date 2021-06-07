@@ -27,6 +27,14 @@ type (
 		// startTime is the time the experiment started at.
 		startTime time.Time
 
+		// prepTimeout is the amount of time to let preparation run before cancelling it
+		// and stopping the experiment.
+		prepTimeout time.Duration
+
+		// runTimeout is the amount of time to let a treatment run before cancelling it
+		// and stopping the experiment.
+		runTimeout time.Duration
+
 		// repetitions is the number of times to run the experiment.
 		repetitions int
 
@@ -46,6 +54,8 @@ func New(repetitions int, resultFile string) *Trial {
 	return &Trial{
 		order:       -1,
 		startTime:   time.Now(),
+		prepTimeout: time.Second * 30,
+		runTimeout:  time.Second * 30,
 		repetitions: repetitions,
 		resultFile:  resultFile,
 		treatments:  nil,
@@ -93,10 +103,10 @@ func (t *Trial) runReplicate(replicate int, results *os.File) {
 	for _, treatment := range applications {
 
 		// Prepare the treatment.
-		treatment.Prepare()
+		treatment.Prepare(t.prepTimeout)
 
 		// Run treatment
-		secs := treatment.Run()
+		secs := treatment.Run(t.runTimeout)
 
 		// Write results to the result file.
 		result := fmt.Sprintf("%d %d %d %s %.*f\n",

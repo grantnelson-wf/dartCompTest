@@ -83,39 +83,73 @@ func (t *Treatment) PrepareCommand(cmd string, args ...string) *Treatment {
 	return t
 }
 
+// Prepare will prepare the treatment for a run to make it a clean consistent run.
+// This will not be measured.
+func (t *Treatment) Prepare(timeout time.Duration) {
+	if len(t.prepareCmd) > 0 {
+		fmt.Printf("   preparing %s\n", t.name)
+		_, err := t.performCmd(t.prepareCmd, timeout)
+		if err != nil {
+			panic(fmt.Errorf("%s failed to prepare: %v", t.name, err))
+		}
+	}
+}
+
 // Run will run the command for this treatment that will be measured.
 // Returns the time in seconds it took to execute.
-func (t *Treatment) Run() float64 {
-	fmt.Printf("  running %s...", t.name)
-	cmd := exec.Command(t.runCmd[0], t.runCmd[1:]...)
-	cmd.Dir = t.path
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+func (t *Treatment) Run(timeout time.Duration) float64 {
+	fmt.Printf("  running %s...\n", t.name)
+	result, err := t.performCmd(t.runCmd, timeout)
+	if err != nil {
+		panic(fmt.Errorf("%s failed to run: %v", t.name, err))
+	}
+	fmt.Printf("  running %s...%f sec\n", t.name, result)
+	return result
+}
+
+// asyncCmd is the asynchronous part of the performCmd method which is to run
+// in its own go-routine and use the given channels to return results.
+func (t *Treatment) asyncCmd(cmd *exec.Cmd, resultCh chan float64, errCh chan error) {
+	defer func() {
+		if r := recover(); r != nil {
+			errCh <- fmt.Errorf("%v", r)
+		}
+	}()
 
 	start := time.Now()
 	err := cmd.Run()
 	dur := time.Since(start)
 
 	if err != nil {
-		panic(fmt.Errorf("%s failed to run: %v", t.name, err))
+		errCh <- err
 	}
-
-	fmt.Printf("%s\n", dur.String())
-	return dur.Seconds()
+	resultCh <- dur.Seconds()
 }
 
-// Prepare will prepare the treatment for a run to make it a clean consistent run.
-// This will not be measured.
-func (t *Treatment) Prepare() {
-	if len(t.prepareCmd) > 0 {
-		fmt.Printf("   preparing %s\n", t.name)
-		cmd := exec.Command(t.prepareCmd[0], t.prepareCmd[1:]...)
-		cmd.Dir = t.path
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		if err := cmd.Run(); err != nil {
-			panic(fmt.Errorf("%s failed to prepare: %v", t.name, err))
+// performCmd performs the given command with the given time out.
+// This will return the amount of time it took to run the command or an error.
+// This will block until the command has finished being run to keep treatments from overlapping.
+func (t *Treatment) performCmd(args []string, timeout time.Duration) (float64, error) {
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = t.path
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
+	errCh := make(chan error)
+	resultCh := make(chan float64)
+	timeoutCh := time.After(timeout)
+	go t.asyncCmd(cmd, resultCh, errCh)
+
+	select {
+	case <-timeoutCh:
+		if cmd.Process != nil {
+			cmd.Process.Kill()
 		}
+		return 0.0, fmt.Errorf("timed out")
+	case err := <-errCh:
+		return 0.0, err
+	case result := <-resultCh:
+		return result, nil
 	}
 }
 

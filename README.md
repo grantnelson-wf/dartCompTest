@@ -27,6 +27,13 @@ Each one may have it's own unique method for running but in general it will look
 > `pub get`
 > `webdev serve --no-injected-client`
 
+## On Treatment Timeout
+
+If a treatment times out it is possible its because the dart compiler got stuck (it does that)
+use the following command to see if the dart compiler is still alive and needs to be killed.
+
+> `lsof -P | grep dart`
+
 ## NOTICE
 
 The code in the treatments was designed to be extra complicated to
