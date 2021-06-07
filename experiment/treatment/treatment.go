@@ -87,11 +87,12 @@ func (t *Treatment) PrepareCommand(cmd string, args ...string) *Treatment {
 // This will not be measured.
 func (t *Treatment) Prepare(timeout time.Duration) {
 	if len(t.prepareCmd) > 0 {
-		fmt.Printf("  preparing %s\n", t.name)
-		_, err := t.performCmd(t.prepareCmd, timeout)
+		fmt.Printf("  preparing %s...\n", t.name)
+		dur, err := t.performCmd(t.prepareCmd, timeout)
 		if err != nil {
 			panic(fmt.Errorf("%s failed to prepare: %v", t.name, err))
 		}
+		fmt.Printf("  preparing %s...%f secs\n", t.name, dur)
 	}
 }
 
@@ -103,7 +104,7 @@ func (t *Treatment) Run(timeout time.Duration) float64 {
 	if err != nil {
 		panic(fmt.Errorf("%s failed to run: %v", t.name, err))
 	}
-	fmt.Printf("  running %s...%f sec\n", t.name, result)
+	fmt.Printf("  running %s...%f secs\n", t.name, result)
 	return result
 }
 

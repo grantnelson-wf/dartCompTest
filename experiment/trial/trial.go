@@ -35,6 +35,15 @@ type (
 		// and stopping the experiment.
 		runTimeout time.Duration
 
+		// prepWait is the amount of time to wait before running prepare. This normally is
+		// zero unless something is holding onto files that need to be removed while cleaning.
+		prepWait time.Duration
+
+		// runWait is the amount of unmeasured time to wait after prepare is run before
+		// the test is run. Useful for letting a process "cool down" if there are background
+		// tasks that need to finish shutting down between runs.
+		runWait time.Duration
+
 		// repetitions is the number of times to run the experiment.
 		repetitions int
 
@@ -54,8 +63,10 @@ func New(repetitions int, resultFile string) *Trial {
 	return &Trial{
 		order:       -1,
 		startTime:   time.Now(),
-		prepTimeout: time.Second * 30,
-		runTimeout:  time.Second * 30,
+		prepTimeout: time.Minute,
+		runTimeout:  time.Minute,
+		prepWait:    0,
+		runWait:     time.Second * 3,
 		repetitions: repetitions,
 		resultFile:  resultFile,
 		treatments:  nil,
@@ -74,6 +85,12 @@ func (t *Trial) AddTreatment() *treatment.Treatment {
 func (t *Trial) SetTimeouts(prepTimeout, runTimeout time.Duration) {
 	t.prepTimeout = prepTimeout
 	t.runTimeout = runTimeout
+}
+
+// SetWaits will set how long to wait, a "cool down" period, before running a command.
+func (t *Trial) SetWaits(prepWait, runWait time.Duration) {
+	t.prepWait = prepWait
+	t.runWait = runWait
 }
 
 // Run runs the full experiment.
@@ -100,6 +117,14 @@ func (t *Trial) Run() {
 	}
 }
 
+// wait will pause execution for the given "cool down" time.
+func (t *Trial) wait(dur time.Duration) {
+	if dur > 0 {
+		fmt.Printf("  waiting %f secs\n", dur.Seconds())
+		time.Sleep(dur)
+	}
+}
+
 // runReplicate randomly runs the application of treatments for a replica.
 func (t *Trial) runReplicate(replicate int, results *os.File) {
 	fmt.Printf("replicate %d of %d\n", replicate, t.repetitions)
@@ -109,9 +134,11 @@ func (t *Trial) runReplicate(replicate int, results *os.File) {
 	for _, treatment := range applications {
 
 		// Prepare the treatment.
+		t.wait(t.prepWait)
 		treatment.Prepare(t.prepTimeout)
 
 		// Run treatment
+		t.wait(t.runWait)
 		secs := treatment.Run(t.runTimeout)
 
 		// Write results to the result file.
