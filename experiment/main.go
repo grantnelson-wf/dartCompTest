@@ -28,19 +28,23 @@ func addTreatments(trial *trial.Trial) {
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
 
-	// Same as File_Dep_dart2js but using dartdevc instead.
-	trial.AddTreatment().
-		Name(`File_Dep_dartdevc`).
-		Path(`treatments/filedeps`).
-		PrepareCommand(`rm`, `-rf`, `build`).
-		RunCommand(`webdev`, `build`, `--no-release`)
+	/*
+		// Same as File_Dep_dart2js but using dartdevc instead.
+		// To properly run the statistics on this remember to deal with variance among groups.
+		trial.AddTreatment().
+			Name(`File_Dep_dartdevc`).
+			Path(`treatments/filedeps`).
+			PrepareCommand(`rm`, `-rf`, `build`).
+			RunCommand(`webdev`, `build`, `--no-release`)
 
-	// Same as Library_Dep_dart2js but using dartdevc instead.
-	trial.AddTreatment().
-		Name(`Library_Dep_dartdevc`).
-		Path(`treatments/libdeps`).
-		PrepareCommand(`rm`, `-rf`, `build`).
-		RunCommand(`webdev`, `build`, `--no-release`)
+		// Same as Library_Dep_dart2js but using dartdevc instead.
+		// To properly run the statistics on this remember to deal with variance among groups.
+		trial.AddTreatment().
+			Name(`Library_Dep_dartdevc`).
+			Path(`treatments/libdeps`).
+			PrepareCommand(`rm`, `-rf`, `build`).
+			RunCommand(`webdev`, `build`, `--no-release`)
+	*/
 }
 
 // main is the entry point for the experiment.
