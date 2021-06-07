@@ -15,18 +15,32 @@ func addTreatments(trial *trial.Trial) {
 	// File Dependencies is example dart code where the imports or on each file
 	// such that any dependency graph has to be made between all the files.
 	trial.AddTreatment().
-		Name(`File_Dependencies`).
+		Name(`File_Dep_dart2js`).
 		Path(`treatments/filedeps`).
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
 
 	// Library Dependencies is example dart code where the imports are on a library file
-	// such that
+	// such that only the library file has dependencies for all files that are part of it.
 	trial.AddTreatment().
-		Name(`Library_Dependencies`).
+		Name(`Library_Dep_dart2js`).
 		Path(`treatments/libdeps`).
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
+
+	// Same as File_Dep_dart2js but using dartdevc instead.
+	trial.AddTreatment().
+		Name(`File_Dep_dartdevc`).
+		Path(`treatments/filedeps`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		RunCommand(`webdev`, `build`, `--no-release`)
+
+	// Same as Library_Dep_dart2js but using dartdevc instead.
+	trial.AddTreatment().
+		Name(`Library_Dep_dartdevc`).
+		Path(`treatments/libdeps`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		RunCommand(`webdev`, `build`, `--no-release`)
 }
 
 // main is the entry point for the experiment.
