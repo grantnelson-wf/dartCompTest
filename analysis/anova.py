@@ -17,3 +17,7 @@ print(table)
 ax = sns.boxplot(x='name', y='seconds', data=df, color='#99c2a2')
 ax = sns.swarmplot(x="name", y="seconds", data=df, color='#7d0013')
 plt.show()
+
+# Line plot order by seconds to confirm order's invariance.
+sns.lineplot(data=df, x="order", y="seconds")
+plt.show()
