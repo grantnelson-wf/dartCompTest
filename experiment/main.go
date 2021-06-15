@@ -8,43 +8,40 @@ import (
 	"github.com/grantnelson-wf/dartCompTest/experiment/trial"
 )
 
-// addTreatments defines all the treatments which should be run in this experiment
-// and configures them as needed. Note that the commands are relative to the given path.
-func addTreatments(trial *trial.Trial) {
-
-	// File Dependencies is example dart code where the imports or on each file
-	// such that any dependency graph has to be made between all the files.
+// addTreatments_FileVsLib_Dart2js defines the treatments which should be run in an experiment.
+// This experiment compares using file dependencies against library dependencies. Both will compile with Dart2js.
+// Note that the commands are relative to the given path.
+func addTreatments_FileVsLib_Dart2js(trial *trial.Trial) {
 	trial.AddTreatment().
-		Name(`File_Dep_dart2js`).
-		Path(`treatments/filedeps`).
+		Name(`File_Dep`).
+		Path(`treatments/filedeps1`).
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
 
-	// Library Dependencies is example dart code where the imports are on a library file
-	// such that only the library file has dependencies for all files that are part of it.
 	trial.AddTreatment().
-		Name(`Library_Dep_dart2js`).
-		Path(`treatments/libdeps`).
+		Name(`Library_Dep`).
+		Path(`treatments/libdeps1`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		RunCommand(`webdev`, `build`)
+}
+
+// addTreatments_Dart2jsVsDartDevC_File defines the treatments which should be run in an experiment.
+// This experiment compares building the file dependencies example with Dart2js and DartDevC.
+// This can not be combined with addTreatments_FileVsLib_Dart2js without updating ANOVA model
+// to have additional grouping for the type of build.
+// Note that the commands are relative to the given path.
+func addTreatments_Dart2jsVsDartDevC_File(trial *trial.Trial) {
+	trial.AddTreatment().
+		Name(`File_Dep_Dart2js`).
+		Path(`treatments/filedeps1`).
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
 
-	/*
-		// Same as File_Dep_dart2js but using dartdevc instead.
-		// To properly run the statistics on this remember to deal with variance among groups.
-		trial.AddTreatment().
-			Name(`File_Dep_dartdevc`).
-			Path(`treatments/filedeps`).
-			PrepareCommand(`rm`, `-rf`, `build`).
-			RunCommand(`webdev`, `build`, `--no-release`)
-
-		// Same as Library_Dep_dart2js but using dartdevc instead.
-		// To properly run the statistics on this remember to deal with variance among groups.
-		trial.AddTreatment().
-			Name(`Library_Dep_dartdevc`).
-			Path(`treatments/libdeps`).
-			PrepareCommand(`rm`, `-rf`, `build`).
-			RunCommand(`webdev`, `build`, `--no-release`)
-	*/
+	trial.AddTreatment().
+		Name(`File_Dep_DartDevC`).
+		Path(`treatments/filedeps1`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		RunCommand(`webdev`, `build`, `--no-release`)
 }
 
 // main is the entry point for the experiment.
@@ -67,7 +64,11 @@ func main() {
 	flag.Parse()
 
 	trial := trial.New(repetitions, resultFile)
-	addTreatments(trial)
+
+	// Pick Only One:
+	addTreatments_FileVsLib_Dart2js(trial)
+	//addTreatments_Dart2jsVsDartDevC_File(trial)
+
 	trial.Run()
 
 	fmt.Println("Experiment done")
