@@ -1,4 +1,4 @@
-package treegen
+package gen
 
 import (
 	"fmt"

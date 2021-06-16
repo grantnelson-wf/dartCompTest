@@ -1,4 +1,4 @@
-package treegen
+package gen
 
 import (
 	"fmt"
@@ -11,15 +11,18 @@ var _ Node = (*Leaf)(nil)
 type Leaf struct {
 	index int
 	group *Group
+
+	// The value used for the leaf could be used to rewrite the leafs
+	// with random values to force a rebuild of a part of the whole dependency tree.
 	value int
 }
 
 // NewLeaf creates a new leaf node.
-func NewLeaf() *Leaf {
+func NewLeaf(value int) *Leaf {
 	n := &Leaf{
 		index: -1,
 		group: nil,
-		value: 0,
+		value: value,
 	}
 	return n
 }
