@@ -27,6 +27,11 @@ func (n *Branch) Add(nodes ...Node) {
 	n.children = append(n.children, nodes...)
 }
 
+// Children will return all the children for this branch.
+func (n *Branch) Children() []Node {
+	return n.children
+}
+
 // Group gets the collection of items this branch belongs to.
 func (n *Branch) Group() *Group {
 	return n.group

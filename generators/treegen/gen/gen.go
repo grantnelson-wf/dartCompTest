@@ -8,6 +8,12 @@ import (
 	"os/exec"
 )
 
+const (
+	// maxLeafValue is the maximum integer value that the leaf can handle
+	// since this will be run on JS via dart.
+	maxLeafValue = 2 ^ 53 - 1
+)
+
 // Generator is the structure to fill out to configure the generation.
 type Generator struct {
 	Scalar        float64
@@ -20,6 +26,7 @@ type Generator struct {
 	UseLibraries  bool
 	BasePath      string
 	PackageName   string
+	RandomSeed    bool
 }
 
 // Generate will generate a dependency tree of files for a large treatment example code.
@@ -70,10 +77,13 @@ func (g *Generator) createBreadth(depth int) []Node {
 	count := bound(int(g.Scalar * math.Pow(float64(depth), g.Exponent)))
 	nodes := make([]Node, count)
 	if depth == g.MaxDepth {
-		// Can make more random, see comment on leaf value
-		r := rand.New(rand.NewSource(0))
+		seed := int64(0)
+		if g.RandomSeed {
+			seed = rand.Int63()
+		}
+		r := rand.New(rand.NewSource(seed))
 		for i := range nodes {
-			nodes[i] = NewLeaf(r.Int())
+			nodes[i] = NewLeaf(r.Intn(maxLeafValue))
 		}
 	} else {
 		for i := range nodes {
@@ -136,13 +146,18 @@ func (g *Generator) writeYaml() {
 
 	out.WriteLine(`name: `, g.PackageName)
 	out.WriteLine(`version: 0.1.0`)
+	out.WriteLine(`description: An experimental treatment which has been generated`)
 	out.WriteLine()
 	out.WriteLine(`environment:`)
 	out.WriteLine(`  sdk: '>=2.7.0 <3.0.0'`)
 	out.WriteLine()
+	out.WriteLine(`dependencies:`)
+	out.WriteLine(`  validators: ^2.0.1`)
+	out.WriteLine()
 	out.WriteLine(`dev_dependencies:`)
 	out.WriteLine(`  dart_dev: ^3.6.1`)
 	out.WriteLine(`  build_runner: ^1.10.0`)
+	out.WriteLine(`  build_test: ^1.2.1`)
 	out.WriteLine(`  build_web_compilers: ^2.9.0`)
 }
 

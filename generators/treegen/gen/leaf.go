@@ -27,6 +27,11 @@ func NewLeaf(value int) *Leaf {
 	return n
 }
 
+// Children will return nil for a leaf since it has no dependencies.
+func (n *Leaf) Children() []Node {
+	return nil
+}
+
 // Group gets the collection of items this leaf belongs to.
 func (n *Leaf) Group() *Group {
 	return n.group

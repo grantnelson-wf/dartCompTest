@@ -42,6 +42,10 @@ func main() {
 	flag.BoolVar(&dryRun, `dry`, dryRun,
 		`Indicates that the files should not be written. Instead a dry run will be run and the outputs are written to the console.`)
 
+	randomSeed := false
+	flag.BoolVar(&randomSeed, `rand`, randomSeed,
+		`Indicates that the values used for the leafs should be fully randomized.`)
+
 	runPubGet := false
 	flag.BoolVar(&runPubGet, `pubget`, runPubGet,
 		`Indicates that after generating the code "pub get" should be automatically run.`)
@@ -84,6 +88,7 @@ func main() {
 		UseLibraries:  useLibraries,
 		BasePath:      basePath,
 		PackageName:   packageName,
+		RandomSeed:    randomSeed,
 	}
 	g.Generate()
 

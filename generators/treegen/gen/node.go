@@ -17,6 +17,9 @@ type (
 	Node interface {
 		Item
 
+		// Children will return any dependencies for this node.
+		Children() []Node
+
 		// Group is the collection of items which share a folder or library.
 		Group() *Group
 

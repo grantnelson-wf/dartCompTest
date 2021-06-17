@@ -81,6 +81,16 @@ func (g *Group) ImportGroupNames(nodes []Node) []string {
 	return sortedImports
 }
 
+// allMemberChildren gets all the dependencies from all the members.
+// This may contain duplicate nodes.
+func (g *Group) allMemberChildren() []Node {
+	nodes := []Node{}
+	for _, item := range g.members {
+		nodes = append(nodes, item.Children()...)
+	}
+	return nodes
+}
+
 // writeLibraryFile writes the library file for this group.
 func (g *Group) writeLibraryFile(dryRun bool, basePath, packageName string) {
 	out := NewItemOutput(dryRun, g, basePath, `lib`, `src`, g.String())
@@ -89,7 +99,7 @@ func (g *Group) writeLibraryFile(dryRun bool, basePath, packageName string) {
 	out.WriteLine(`library `, g, `;`)
 	out.WriteLine()
 
-	imports := g.ImportGroupNames(g.members)
+	imports := g.ImportGroupNames(g.allMemberChildren())
 	if len(imports) > 0 {
 		for _, name := range imports {
 			out.WriteLine(`import 'package:`, packageName, `/`, name, `.dart';`)
