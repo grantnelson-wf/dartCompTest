@@ -8,9 +8,9 @@ Experimental test of dart compiling different type of code bases.
 
 Generating treatments with something like
 
-> `go run ./generators/treegen/main.go -out ./treatments/filedeps_gen -pubget -exp 2 -depth 10 -scalar 100 -group 100`
+> `go run ./generators/treegen/main.go -out ./treatments/filedeps_gen -pubget -exp 2 -depth 10 -scalar 10 -group 15`
 >
-> `go run ./generators/treegen/main.go -out ./treatments/libdeps_gen -lib -pubget -exp 2 -depth 10 -scalar 100 -group 100`
+> `go run ./generators/treegen/main.go -out ./treatments/libdeps_gen -lib -pubget -exp 2 -depth 10 -scalar 10 -group 15`
 
 ## Running Experiment
 
@@ -26,9 +26,7 @@ You may need to add some python packages, use pip as needed.
 
 This assumes the results are in `./results.txt`
 
-> `cd analysis`
->
-> `python3 anova.py`
+> `(cd analysis && python3 anova.py)`
 
 ## Running Individual Treatments
 

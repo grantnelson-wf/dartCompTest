@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/grantnelson-wf/dartCompTest/experiment/trial"
 )
@@ -59,6 +60,8 @@ func addTreatments_FileVsLib_Generated_Dart2js(trial *trial.Trial) {
 		Path(`treatments/libdeps_gen`).
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
+
+	trial.SetTimeouts(30*time.Second, 2*time.Minute)
 }
 
 // main is the entry point for the experiment.
