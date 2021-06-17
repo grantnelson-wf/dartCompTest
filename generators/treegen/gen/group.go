@@ -61,6 +61,26 @@ func (g *Group) Write(dryRun bool, basePath, packageName string) {
 	g.writeExport(dryRun, basePath)
 }
 
+// ImportGroupNames gets the sorted names of all the groups which are not
+// this group and therefore need to be imported for the given nodes.
+func (g *Group) ImportGroupNames(nodes []Node) []string {
+	imports := map[string]bool{}
+	for _, node := range nodes {
+		if node.Group() != g {
+			imports[node.Group().String()] = true
+		}
+	}
+
+	sortedImports := make([]string, len(imports))
+	i := 0
+	for groupName := range imports {
+		sortedImports[i] = groupName
+		i++
+	}
+	sort.Strings(sortedImports)
+	return sortedImports
+}
+
 // writeLibraryFile writes the library file for this group.
 func (g *Group) writeLibraryFile(dryRun bool, basePath, packageName string) {
 	out := NewItemOutput(dryRun, g, basePath, `lib`, `src`, g.String())
@@ -69,21 +89,9 @@ func (g *Group) writeLibraryFile(dryRun bool, basePath, packageName string) {
 	out.WriteLine(`library `, g, `;`)
 	out.WriteLine()
 
-	imports := map[string]bool{}
-	for _, item := range g.members {
-		if item.Group() != g {
-			imports[item.Group().String()] = true
-		}
-	}
+	imports := g.ImportGroupNames(g.members)
 	if len(imports) > 0 {
-		sortedImports := make([]string, len(imports))
-		i := 0
-		for groupName := range imports {
-			sortedImports[i] = groupName
-			i++
-		}
-		sort.Strings(sortedImports)
-		for _, name := range sortedImports {
+		for _, name := range imports {
 			out.WriteLine(`import 'package:`, packageName, `/`, name, `.dart';`)
 		}
 		out.WriteLine()

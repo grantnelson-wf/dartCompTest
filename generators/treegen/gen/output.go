@@ -6,6 +6,11 @@ import (
 	"path"
 )
 
+const (
+	// dirMode is the permissions mask used for any directly being created.
+	dirMode = 0755
+)
+
 // Output provides a way for writting a code file.
 type Output struct {
 	dryRun bool
@@ -20,16 +25,17 @@ func NewItemOutput(dryRun bool, item Item, pathParts ...string) *Output {
 
 // NewOutput will create the file or output.
 func NewOutput(dryRun bool, pathParts ...string) *Output {
-	path := path.Join(pathParts...)
+	filePath := path.Join(pathParts...)
+	ensureDirectory(filePath)
 
 	var f *os.File
 	if dryRun {
 		fmt.Println("+---------------------------------------------------------")
-		fmt.Println("|", path)
+		fmt.Println("|", filePath)
 		fmt.Println("+---------------------------------------------------------")
 	} else {
 		var err error
-		if f, err = os.Create(path); err != nil {
+		if f, err = os.Create(filePath); err != nil {
 			panic(err)
 		}
 	}
@@ -37,6 +43,16 @@ func NewOutput(dryRun bool, pathParts ...string) *Output {
 	return &Output{
 		dryRun: dryRun,
 		f:      f,
+	}
+}
+
+func ensureDirectory(p string) {
+	dir := path.Dir(p)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		ensureDirectory(dir)
+		if err := os.Mkdir(dir, dirMode); err != nil {
+			panic(err)
+		}
 	}
 }
 

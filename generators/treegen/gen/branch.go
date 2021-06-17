@@ -74,18 +74,15 @@ func (n *Branch) Write(dryRun bool, basePath, packageName string) {
 		out.WriteLine(`part of `, n.group, `;`)
 		out.WriteLine()
 	} else {
-		hasImports := false
-		for _, item := range n.children {
-			if item.Group() != n.group {
-				out.WriteLine(`import 'package:`, packageName, `/`, item, `.dart';`)
-				hasImports = true
+		imports := n.group.ImportGroupNames(n.children)
+		if len(imports) > 0 {
+			for _, group := range imports {
+				out.WriteLine(`import 'package:`, packageName, `/`, group, `.dart';`)
 			}
-		}
-		if hasImports {
 			out.WriteLine()
 		}
 
-		hasImports = false
+		hasImports := false
 		for _, item := range n.children {
 			if item.Group() == n.group {
 				out.WriteLine(`import '`, item, `.dart';`)

@@ -106,8 +106,9 @@ func groupNodes(allNodes []Node, itemsPerGroup int, useLibraries bool) []*Group 
 	return groups
 }
 
+// writeYaml will write the pubspec.yaml file for this package.
 func writeYaml(dryRun bool, basePath, packageName string) {
-	out := NewOutput(dryRun, basePath, `web`, `pubspec.yaml`)
+	out := NewOutput(dryRun, basePath, `pubspec.yaml`)
 	defer out.Close()
 
 	out.WriteLine(`name: `, packageName)
@@ -122,33 +123,31 @@ func writeYaml(dryRun bool, basePath, packageName string) {
 	out.WriteLine(`  build_web_compilers: ^2.9.0`)
 }
 
+// writeWeb will write the main dart entry point for this package.
 func writeWeb(dryRun bool, basePath, packageName string, root Node) {
 	out := NewOutput(dryRun, basePath, `web`, `main.dart`)
 	defer out.Close()
 
 	out.WriteLine(`import 'dart:html';`)
 	out.WriteLine()
-	if root.Group().IsLibrary() {
-		out.WriteLine(`import 'package:`, packageName, `/`, root.Group(), `.dart';`)
-	} else {
-		out.WriteLine(`import 'package:`, packageName, `/`, root, `.dart';`)
-	}
+	out.WriteLine(`import 'package:`, packageName, `/`, root.Group(), `.dart';`)
 	out.WriteLine()
 	out.WriteLine(`void main() {`)
 	out.WriteLine(`  document.title = 'TreeGen - `, packageName, `';`)
 	out.WriteLine()
 	out.WriteLine(`  final root = `, root, `();`)
-	out.WriteLine(`  final text1 = DivElement()..innerText = 'Hash = ${root.hash}';`)
-	out.WriteLine(`  final text2 = DivElement()..innerText = 'Sum = ${root.sum}';`)
-	out.WriteLine(`  final text3 = DivElement()..innerText = 'Count = ${root.count}';`)
+	out.WriteLine(`  final div1 = DivElement()..innerText = 'Hash = ${root.hash}';`)
+	out.WriteLine(`  final div2 = DivElement()..innerText = 'Sum = ${root.sum}';`)
+	out.WriteLine(`  final div3 = DivElement()..innerText = 'Count = ${root.count}';`)
 	out.WriteLine()
 	out.WriteLine(`  document.body`)
-	out.WriteLine(`    ..append(text1)`)
-	out.WriteLine(`    ..append(text2)`)
-	out.WriteLine(`    ..append(text3);`)
+	out.WriteLine(`    ..append(div1)`)
+	out.WriteLine(`    ..append(div2)`)
+	out.WriteLine(`    ..append(div3);`)
 	out.WriteLine(`}`)
 }
 
+// writeHtml will write the html file for this package.
 func writeHtml(dryRun bool, basePath string, root Node) {
 	out := NewOutput(dryRun, basePath, `web`, `index.html`)
 	defer out.Close()

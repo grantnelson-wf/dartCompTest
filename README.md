@@ -8,7 +8,7 @@ Experimental test of dart compiling different type of code bases.
 
 Generating treatments with something like
 
-> `go run ./generators/treegen/main.go -out ./treatments/filedepss2`
+> `go run ./generators/treegen/main.go -out ./treatments/filedeps2`
 
 ## Running Experiment
 
