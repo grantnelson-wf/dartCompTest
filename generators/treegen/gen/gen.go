@@ -42,6 +42,8 @@ func (g *Generator) Generate() {
 		fmt.Println(`dependencies`)
 		root.PrintTree(``, true)
 	}
+
+	fmt.Println(len(allNodes), `nodes,`, len(groups), `groups generated`)
 }
 
 // bound will return the given value or 1, whichever is greater.

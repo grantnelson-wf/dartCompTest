@@ -1,0 +1,2 @@
+# ignore any treatments which have been generated
+*_gen/
