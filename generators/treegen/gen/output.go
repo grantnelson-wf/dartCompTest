@@ -26,14 +26,13 @@ func NewItemOutput(dryRun bool, item Item, pathParts ...string) *Output {
 // NewOutput will create the file or output.
 func NewOutput(dryRun bool, pathParts ...string) *Output {
 	filePath := path.Join(pathParts...)
-	ensureDirectory(filePath)
-
 	var f *os.File
 	if dryRun {
 		fmt.Println("+---------------------------------------------------------")
 		fmt.Println("|", filePath)
 		fmt.Println("+---------------------------------------------------------")
 	} else {
+		ensureDirectory(filePath)
 		var err error
 		if f, err = os.Create(filePath); err != nil {
 			panic(err)
@@ -46,6 +45,8 @@ func NewOutput(dryRun bool, pathParts ...string) *Output {
 	}
 }
 
+// ensureDirectory will check that the directory for the given path exists
+// and builds it recursively if it does not.
 func ensureDirectory(p string) {
 	dir := path.Dir(p)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
