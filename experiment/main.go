@@ -44,6 +44,23 @@ func addTreatments_Dart2jsVsDartDevC_File(trial *trial.Trial) {
 		RunCommand(`webdev`, `build`, `--no-release`)
 }
 
+// addTreatments_FileVsLib_Generated_Dart2js defines the treatments which should be run in an experiment.
+// This experiment compares using the generated file dependencies against the generated library dependencies.
+// Both will compile with Dart2js. Note that the commands are relative to the given path.
+func addTreatments_FileVsLib_Generated_Dart2js(trial *trial.Trial) {
+	trial.AddTreatment().
+		Name(`File_Dep`).
+		Path(`treatments/filedeps_gen`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		RunCommand(`webdev`, `build`)
+
+	trial.AddTreatment().
+		Name(`Library_Dep`).
+		Path(`treatments/libdeps_gen`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		RunCommand(`webdev`, `build`)
+}
+
 // main is the entry point for the experiment.
 func main() {
 	defer func() {
@@ -65,9 +82,12 @@ func main() {
 
 	trial := trial.New(repetitions, resultFile)
 
-	// Pick Only One:
-	addTreatments_FileVsLib_Dart2js(trial)
+	// Pick Only One!
+	//------------------
+	//addTreatments_FileVsLib_Dart2js(trial)
 	//addTreatments_Dart2jsVsDartDevC_File(trial)
+	addTreatments_FileVsLib_Generated_Dart2js(trial)
+	//------------------
 
 	trial.Run()
 

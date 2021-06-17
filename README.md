@@ -8,9 +8,15 @@ Experimental test of dart compiling different type of code bases.
 
 Generating treatments with something like
 
-> `go run ./generators/treegen/main.go -out ./treatments/filedeps_gen -exp 2 -depth 10 -scalar 100 -group 100 -pubget`
+> `go run ./generators/treegen/main.go -out ./treatments/filedeps_gen -pubget -exp 2 -depth 10 -scalar 100 -group 100`
+>
+> `go run ./generators/treegen/main.go -out ./treatments/libdeps_gen -lib -pubget -exp 2 -depth 10 -scalar 100 -group 100`
 
 ## Running Experiment
+
+Configure the trial that should be run in [`./experiment/main.go`](./experiment/main.go),
+
+Then run
 
 > `go run ./experiment/main.go`
 
