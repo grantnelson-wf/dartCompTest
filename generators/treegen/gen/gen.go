@@ -11,8 +11,8 @@ func Generate(scalar, exponent float64, maxDepth, itemsPerGroup int, dryRun, use
 	for _, group := range groups {
 		group.Write(dryRun, basePath)
 	}
-	root := allNodes[0]
-	root.PrintTree(``, true)
+	// root := allNodes[0]
+	// root.PrintTree(``, true)
 }
 
 // bound will return the given value or 1, whichever is greater.
@@ -53,10 +53,10 @@ func createBreadth(scalar, exponent float64, depth, maxDepth int) []Node {
 // assignParents will distribute the children, curNodes, as evenly as possible among the given parents,
 // prevNodes. The parents are assumed to be branch nodes, otherwise this shouldn't be called.
 func assignParents(prevNodes, curNodes []Node) {
-	ratio := float64(len(curNodes)) / float64(len(prevNodes))
+	curCount, prevCount := float64(len(curNodes)), float64(len(prevNodes))
 	start := 0
 	for i, parent := range prevNodes {
-		stop := int(float64(i+1) * ratio)
+		stop := int(float64(i+1) * curCount / prevCount)
 		parent.(*Branch).Add(curNodes[start:stop]...)
 		start = stop
 	}
@@ -81,13 +81,17 @@ func generateDependencyTree(scalar, exponent float64, maxDepth int) []Node {
 func groupNodes(allNodes []Node, itemsPerGroup int, useLibraries bool) []*Group {
 	nodeCount := len(allNodes)
 	groupCount := bound(nodeCount / itemsPerGroup)
+	if groupCount*itemsPerGroup < nodeCount {
+		groupCount++
+	}
 	groups := make([]*Group, groupCount)
-	start, stop := 0, limit(itemsPerGroup, nodeCount)
+	start := 0
 	for i := range groups {
+		stop := int(float64(i+1) * float64(nodeCount) / float64(groupCount))
 		group := NewGroup(i, useLibraries)
 		group.Add(allNodes[start:stop]...)
 		groups[i] = group
-		start, stop = stop, limit(stop+itemsPerGroup, nodeCount)
+		start = stop
 	}
 	return groups
 }
