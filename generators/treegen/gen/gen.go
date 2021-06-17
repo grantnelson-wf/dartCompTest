@@ -1,13 +1,16 @@
 package gen
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // Generate will generate a dependency tree of files for a large treatment example code.
-func Generate(scalar, exponent float64, maxDepth, itemsPerGroup int, useLibraries bool, basePath string) {
+func Generate(scalar, exponent float64, maxDepth, itemsPerGroup int, dryRun, useLibraries bool, basePath string) {
 	allNodes := generateDependencyTree(scalar, exponent, maxDepth)
 	groups := groupNodes(allNodes, itemsPerGroup, useLibraries)
 	for _, group := range groups {
-		group.Write(basePath)
+		group.Write(dryRun, basePath)
 	}
 }
 
@@ -51,7 +54,11 @@ func createBreadth(scalar, exponent float64, depth, maxDepth int) []Node {
 func assignParents(prevNodes, curNodes []Node) {
 	count := len(curNodes)
 	childrenPerBranch := bound(count / len(prevNodes))
+	fmt.Println("> count:            ", count)          // TODO: REMOVE
+	fmt.Println("> len(prevNodes):   ", len(prevNodes)) // TODO: REMOVE
+	fmt.Println("> childrenPerBranch:", len(prevNodes)) // TODO: REMOVE
 	for i, start, stop := 0, 0, childrenPerBranch; start < count; i, start, stop = i+1, stop, limit(stop+childrenPerBranch, count) {
+		fmt.Println(">> (", i, ", ", start, ", ", stop, ")") // TODO: REMOVE
 		prevNodes[i].(*Branch).Add(curNodes[start:stop]...)
 	}
 }
@@ -63,6 +70,7 @@ func generateDependencyTree(scalar, exponent float64, maxDepth int) []Node {
 	allNodes := []Node{root}
 	prevNodes := []Node{root}
 	for depth := 1; depth <= maxDepth; depth++ {
+		fmt.Println("depth:", depth) // TODO: REMOVE
 		curNodes := createBreadth(scalar, exponent, depth, maxDepth)
 		assignParents(prevNodes, curNodes)
 		prevNodes = curNodes

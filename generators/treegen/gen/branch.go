@@ -32,9 +32,9 @@ func (n *Branch) Group() *Group {
 	return n.group
 }
 
-// SetGroup should only be called by a group when this branch is being added to the group
+// setGroup should only be called by a group when this branch is being added to the group
 // and is used to set the group this branch belongs to.
-func (n *Branch) SetGroup(group *Group, index int) {
+func (n *Branch) setGroup(group *Group, index int) {
 	n.group = group
 	n.index = index
 }
@@ -46,77 +46,77 @@ func (n *Branch) String() string {
 
 // Write will write this branch's file in the given base path.
 // This base path is the folder that should contain the `lib` folder.
-func (n *Branch) Write(basePath string) {
+func (n *Branch) Write(dryRun bool, basePath string) {
 	if len(n.children) <= 0 {
 		panic(fmt.Errorf("may not write a branch with no children"))
 	}
 
-	f := CreateFile(n, basePath, `lib`, `src`)
-	defer f.Close()
+	out := NewOutput(dryRun, n, basePath, `lib`, `src`)
+	defer out.Close()
 
 	if n.group.IsLibrary() {
-		WriteLine(f, `part of `, n.group, `;`)
-		WriteLine(f)
+		out.WriteLine(`part of `, n.group, `;`)
+		out.WriteLine()
 	} else {
 		hasImports := false
 		for _, item := range n.children {
 			if item.Group() != n.group {
-				WriteLine(f, `import 'package:`, item.Group(), `/`, item, `.dart';`)
+				out.WriteLine(`import 'package:`, item.Group(), `/`, item, `.dart';`)
 				hasImports = true
 			}
 		}
 		if hasImports {
-			WriteLine(f)
+			out.WriteLine()
 		}
 
 		hasImports = false
 		for _, item := range n.children {
 			if item.Group() == n.group {
-				WriteLine(f, `import '`, item, `.dart';`)
+				out.WriteLine(`import '`, item, `.dart';`)
 				hasImports = true
 			}
 		}
 		if hasImports {
-			WriteLine(f)
+			out.WriteLine()
 		}
 	}
 	maxIndex := len(n.children) - 1
 
-	WriteLine(f, `class `, n, `{`)
+	out.WriteLine(`class `, n, `{`)
 	for i, item := range n.children {
-		WriteLine(f, `   `, item, ` _item`, i, `;`)
+		out.WriteLine(`   `, item, ` _item`, i, `;`)
 	}
-	WriteLine(f)
-	WriteLine(f, `   `, n, `() {`)
+	out.WriteLine()
+	out.WriteLine(`   `, n, `() {`)
 	for i, item := range n.children {
-		WriteLine(f, `      _item`, i, ` = new `, item, `();`)
+		out.WriteLine(`      _item`, i, ` = new `, item, `();`)
 	}
-	WriteLine(f, `   }`)
-	WriteLine(f)
-	WriteLine(f, `   int get hash {`)
-	WriteLine(f, `      int hashcode = 1430287;`)
+	out.WriteLine(`   }`)
+	out.WriteLine()
+	out.WriteLine(`   int get hash {`)
+	out.WriteLine(`      int hashcode = 1430287;`)
 	for i := range n.children {
-		WriteLine(f, `      hashcode *= 7302013 ^ _item`, i, `.hash;`)
+		out.WriteLine(`      hashcode *= 7302013 ^ _item`, i, `.hash;`)
 	}
-	WriteLine(f, `      return hashcode;`)
-	WriteLine(f, `   }`)
-	WriteLine(f)
-	WriteLine(f, `   int get sum =>`)
+	out.WriteLine(`      return hashcode;`)
+	out.WriteLine(`   }`)
+	out.WriteLine()
+	out.WriteLine(`   int get sum =>`)
 	for i := range n.children {
 		if i == maxIndex {
-			WriteLine(f, `      _item`, i, `.sum +`)
+			out.WriteLine(`      _item`, i, `.sum +`)
 		} else {
-			WriteLine(f, `      _item`, i, `.sum;`)
+			out.WriteLine(`      _item`, i, `.sum;`)
 		}
 	}
-	WriteLine(f)
-	WriteLine(f, `   int get count =>`)
+	out.WriteLine()
+	out.WriteLine(`   int get count =>`)
 	for i := range n.children {
 		if i == maxIndex {
-			WriteLine(f, `      _item`, i, `.count +`)
+			out.WriteLine(`      _item`, i, `.count +`)
 		} else {
-			WriteLine(f, `      _item`, i, `.count;`)
+			out.WriteLine(`      _item`, i, `.count;`)
 		}
 	}
-	WriteLine(f, `}`)
+	out.WriteLine(`}`)
 }

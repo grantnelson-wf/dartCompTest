@@ -32,9 +32,9 @@ func (n *Leaf) Group() *Group {
 	return n.group
 }
 
-// SetGroup should only be called by a group when this leaf is being added to the group
+// setGroup should only be called by a group when this leaf is being added to the group
 // and is used to set the group this leaf belongs to.
-func (n *Leaf) SetGroup(group *Group, index int) {
+func (n *Leaf) setGroup(group *Group, index int) {
 	n.group = group
 	n.index = index
 }
@@ -46,26 +46,26 @@ func (n *Leaf) String() string {
 
 // Write will write this leaf's file in the given base path.
 // This base path is the folder that should contain the `lib` folder.
-func (n *Leaf) Write(basePath string) {
-	f := CreateFile(n, basePath, `lib`, `src`)
-	defer f.Close()
+func (n *Leaf) Write(dryRun bool, basePath string) {
+	out := NewOutput(dryRun, n, basePath, `lib`, `src`)
+	defer out.Close()
 
 	if n.group.IsLibrary() {
-		WriteLine(f, `part of `, n.group, `;`)
-		WriteLine(f)
+		out.WriteLine(`part of `, n.group, `;`)
+		out.WriteLine()
 	}
 
-	WriteLine(f, `class `, n, `{`)
-	WriteLine(f, `   int _value;`)
-	WriteLine(f)
-	WriteLine(f, `   `, n, `() {`)
-	WriteLine(f, `      _value = `, n.value)
-	WriteLine(f, `   }`)
-	WriteLine(f)
-	WriteLine(f, `   int get hash => _value;`)
-	WriteLine(f)
-	WriteLine(f, `   int get sum => _value;`)
-	WriteLine(f)
-	WriteLine(f, `   int get count => 1;`)
-	WriteLine(f, `}`)
+	out.WriteLine(`class `, n, `{`)
+	out.WriteLine(`   int _value;`)
+	out.WriteLine()
+	out.WriteLine(`   `, n, `() {`)
+	out.WriteLine(`      _value = `, n.value)
+	out.WriteLine(`   }`)
+	out.WriteLine()
+	out.WriteLine(`   int get hash => _value;`)
+	out.WriteLine()
+	out.WriteLine(`   int get sum => _value;`)
+	out.WriteLine()
+	out.WriteLine(`   int get count => 1;`)
+	out.WriteLine(`}`)
 }

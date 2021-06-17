@@ -1,4 +1,4 @@
-package treegen
+package main
 
 import (
 	"flag"
@@ -11,12 +11,12 @@ import (
 // main is the entry point for the file dependency or library dependency generator.
 // This will generate a large amount of dart code to test different build models.
 func main() {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("Tree generation failed: %v\n", r)
-			os.Exit(1)
-		}
-	}()
+	// defer func() { // TODO: RESTORE
+	// 	if r := recover(); r != nil {
+	// 		fmt.Printf("Tree generation failed: %v\n", r)
+	// 		os.Exit(1)
+	// 	}
+	// }()
 
 	scalar := 1.0
 	flag.Float64Var(&scalar, "scalar", scalar,
@@ -38,6 +38,10 @@ func main() {
 	flag.BoolVar(&useLibraries, "lib", useLibraries,
 		`Indicates that the resulting files should be in libraries. File level dependencies will be used otherwise.`)
 
+	dryRun := false
+	flag.BoolVar(&dryRun, "dry", dryRun,
+		`Indicates that the files should not be written. Instead a dry run will be run and the outputs are written to the consoles.`)
+
 	basePath := ``
 	flag.StringVar(&basePath, "out", basePath,
 		`The required base path to write the generatred files to. This is the path that should have the 'lib' folder in it.`)
@@ -54,6 +58,6 @@ func main() {
 		panic(fmt.Errorf("maximum depth must be greater than one"))
 	}
 
-	gen.Generate(scalar, exponent, maxDepth, itemsPerGroup, useLibraries, basePath)
+	gen.Generate(scalar, exponent, maxDepth, itemsPerGroup, dryRun, useLibraries, basePath)
 	os.Exit(0)
 }
