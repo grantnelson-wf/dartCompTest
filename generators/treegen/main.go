@@ -40,7 +40,15 @@ func main() {
 
 	dryRun := false
 	flag.BoolVar(&dryRun, `dry`, dryRun,
-		`Indicates that the files should not be written. Instead a dry run will be run and the outputs are written to the consoles.`)
+		`Indicates that the files should not be written. Instead a dry run will be run and the outputs are written to the console.`)
+
+	runPubGet := false
+	flag.BoolVar(&runPubGet, `pubget`, runPubGet,
+		`Indicates that after generating the code "pub get" should be automatically run.`)
+
+	showTree := false
+	flag.BoolVar(&showTree, `tree`, showTree,
+		`Indicates that the dependency tree diagram should be printed to the console.`)
 
 	basePath := ``
 	flag.StringVar(&basePath, `out`, basePath,
@@ -65,6 +73,19 @@ func main() {
 		panic(fmt.Errorf(`must have a non-empty package name`))
 	}
 
-	gen.Generate(scalar, exponent, maxDepth, itemsPerGroup, dryRun, useLibraries, basePath, packageName)
+	g := &gen.Generator{
+		Scalar:        scalar,
+		Exponent:      exponent,
+		MaxDepth:      maxDepth,
+		ItemsPerGroup: itemsPerGroup,
+		DryRun:        dryRun,
+		RunPubGet:     runPubGet,
+		ShowTree:      showTree,
+		UseLibraries:  useLibraries,
+		BasePath:      basePath,
+		PackageName:   packageName,
+	}
+	g.Generate()
+
 	os.Exit(0)
 }

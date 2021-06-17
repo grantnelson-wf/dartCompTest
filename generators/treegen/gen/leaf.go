@@ -42,9 +42,9 @@ func (n *Leaf) setGroup(group *Group, index int) {
 // PrintTree prints this node and any children to the console as a tree.
 func (n *Leaf) PrintTree(indent string, last bool) {
 	if last {
-		fmt.Println(indent+` '--leaf`, n, `:`, n.value)
+		fmt.Println(indent+` '--leaf`, n, `=`, n.value)
 	} else {
-		fmt.Println(indent+` |--leaf`, n, `:`, n.value)
+		fmt.Println(indent+` |--leaf`, n, `=`, n.value)
 	}
 }
 

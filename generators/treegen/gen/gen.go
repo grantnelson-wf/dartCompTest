@@ -1,26 +1,45 @@
 package gen
 
 import (
+	"fmt"
 	"math"
+	"math/rand"
+	"os"
+	"os/exec"
 )
 
+// Generator is the structure to fill out to configure the generation.
+type Generator struct {
+	Scalar        float64
+	Exponent      float64
+	MaxDepth      int
+	ItemsPerGroup int
+	DryRun        bool
+	RunPubGet     bool
+	ShowTree      bool
+	UseLibraries  bool
+	BasePath      string
+	PackageName   string
+}
+
 // Generate will generate a dependency tree of files for a large treatment example code.
-func Generate(scalar, exponent float64,
-	maxDepth, itemsPerGroup int,
-	dryRun, useLibraries bool,
-	basePath, packageName string) {
-	allNodes := generateDependencyTree(scalar, exponent, maxDepth)
-	groups := groupNodes(allNodes, itemsPerGroup, useLibraries)
+func (g *Generator) Generate() {
+	allNodes := g.generateDependencyTree()
+	groups := g.groupNodes(allNodes)
 	for _, group := range groups {
-		group.Write(dryRun, basePath, packageName)
+		group.Write(g.DryRun, g.BasePath, g.PackageName)
 	}
 
 	root := allNodes[0]
-	writeYaml(dryRun, basePath, packageName)
-	writeWeb(dryRun, basePath, packageName, root)
-	writeHtml(dryRun, basePath, root)
+	g.writeYaml()
+	g.writeWeb(root)
+	g.writeHtml(root)
+	if !g.DryRun && g.RunPubGet {
+		g.runPubGet()
+	}
 
-	if dryRun {
+	if g.ShowTree {
+		fmt.Println(`dependencies`)
 		root.PrintTree(``, true)
 	}
 }
@@ -45,12 +64,14 @@ func limit(val, max int) int {
 // using the given growth factors to determine the size of this depth's breadth.
 // If the given depth is the maximum depth then the returned nodes will be all leaves,
 // otherwise they will be branches.
-func createBreadth(scalar, exponent float64, depth, maxDepth int) []Node {
-	count := bound(int(scalar * math.Pow(float64(depth), exponent)))
+func (g *Generator) createBreadth(depth int) []Node {
+	count := bound(int(g.Scalar * math.Pow(float64(depth), g.Exponent)))
 	nodes := make([]Node, count)
-	if depth == maxDepth {
+	if depth == g.MaxDepth {
+		// Can make more random, see comment on leaf value
+		r := rand.New(rand.NewSource(0))
 		for i := range nodes {
-			nodes[i] = NewLeaf(i)
+			nodes[i] = NewLeaf(r.Int())
 		}
 	} else {
 		for i := range nodes {
@@ -62,7 +83,7 @@ func createBreadth(scalar, exponent float64, depth, maxDepth int) []Node {
 
 // assignParents will distribute the children, curNodes, as evenly as possible among the given parents,
 // prevNodes. The parents are assumed to be branch nodes, otherwise this shouldn't be called.
-func assignParents(prevNodes, curNodes []Node) {
+func (g *Generator) assignParents(prevNodes, curNodes []Node) {
 	curCount, prevCount := float64(len(curNodes)), float64(len(prevNodes))
 	start := 0
 	for i, parent := range prevNodes {
@@ -74,13 +95,13 @@ func assignParents(prevNodes, curNodes []Node) {
 
 // generateDependencyTree will generate the whole dependency tree.
 // This returns all the nodes in the whole tree.
-func generateDependencyTree(scalar, exponent float64, maxDepth int) []Node {
+func (g *Generator) generateDependencyTree() []Node {
 	root := NewBranch()
 	allNodes := []Node{root}
 	prevNodes := []Node{root}
-	for depth := 1; depth <= maxDepth; depth++ {
-		curNodes := createBreadth(scalar, exponent, depth, maxDepth)
-		assignParents(prevNodes, curNodes)
+	for depth := 1; depth <= g.MaxDepth; depth++ {
+		curNodes := g.createBreadth(depth)
+		g.assignParents(prevNodes, curNodes)
 		prevNodes = curNodes
 		allNodes = append(allNodes, curNodes...)
 	}
@@ -88,17 +109,17 @@ func generateDependencyTree(scalar, exponent float64, maxDepth int) []Node {
 }
 
 // groupNodes will group the dependency tree's nodes into groups which can be written as folders or libraries.
-func groupNodes(allNodes []Node, itemsPerGroup int, useLibraries bool) []*Group {
+func (g *Generator) groupNodes(allNodes []Node) []*Group {
 	nodeCount := len(allNodes)
-	groupCount := bound(nodeCount / itemsPerGroup)
-	if groupCount*itemsPerGroup < nodeCount {
+	groupCount := bound(nodeCount / g.ItemsPerGroup)
+	if groupCount*g.ItemsPerGroup < nodeCount {
 		groupCount++
 	}
 	groups := make([]*Group, groupCount)
 	start := 0
 	for i := range groups {
 		stop := int(float64(i+1) * float64(nodeCount) / float64(groupCount))
-		group := NewGroup(i, useLibraries)
+		group := NewGroup(i, g.UseLibraries)
 		group.Add(allNodes[start:stop]...)
 		groups[i] = group
 		start = stop
@@ -107,11 +128,11 @@ func groupNodes(allNodes []Node, itemsPerGroup int, useLibraries bool) []*Group 
 }
 
 // writeYaml will write the pubspec.yaml file for this package.
-func writeYaml(dryRun bool, basePath, packageName string) {
-	out := NewOutput(dryRun, basePath, `pubspec.yaml`)
+func (g *Generator) writeYaml() {
+	out := NewOutput(g.DryRun, g.BasePath, `pubspec.yaml`)
 	defer out.Close()
 
-	out.WriteLine(`name: `, packageName)
+	out.WriteLine(`name: `, g.PackageName)
 	out.WriteLine(`version: 0.1.0`)
 	out.WriteLine()
 	out.WriteLine(`environment:`)
@@ -124,16 +145,16 @@ func writeYaml(dryRun bool, basePath, packageName string) {
 }
 
 // writeWeb will write the main dart entry point for this package.
-func writeWeb(dryRun bool, basePath, packageName string, root Node) {
-	out := NewOutput(dryRun, basePath, `web`, `main.dart`)
+func (g *Generator) writeWeb(root Node) {
+	out := NewOutput(g.DryRun, g.BasePath, `web`, `main.dart`)
 	defer out.Close()
 
 	out.WriteLine(`import 'dart:html';`)
 	out.WriteLine()
-	out.WriteLine(`import 'package:`, packageName, `/`, root.Group(), `.dart';`)
+	out.WriteLine(`import 'package:`, g.PackageName, `/`, root.Group(), `.dart';`)
 	out.WriteLine()
 	out.WriteLine(`void main() {`)
-	out.WriteLine(`  document.title = 'TreeGen - `, packageName, `';`)
+	out.WriteLine(`  document.title = 'TreeGen - `, g.PackageName, `';`)
 	out.WriteLine()
 	out.WriteLine(`  final root = `, root, `();`)
 	out.WriteLine(`  final div1 = DivElement()..innerText = 'Hash = ${root.hash}';`)
@@ -148,8 +169,8 @@ func writeWeb(dryRun bool, basePath, packageName string, root Node) {
 }
 
 // writeHtml will write the html file for this package.
-func writeHtml(dryRun bool, basePath string, root Node) {
-	out := NewOutput(dryRun, basePath, `web`, `index.html`)
+func (g *Generator) writeHtml(root Node) {
+	out := NewOutput(g.DryRun, g.BasePath, `web`, `index.html`)
 	defer out.Close()
 
 	out.WriteLine(`<!DOCTYPE html>`)
@@ -161,4 +182,15 @@ func writeHtml(dryRun bool, basePath string, root Node) {
 	out.WriteLine(`    <script defer src="main.dart.js"></script>`)
 	out.WriteLine(`  </body>`)
 	out.WriteLine(`</html>`)
+}
+
+// runPubGet will run `pub get` on the create yaml to prepare the generated code to be built.
+func (g *Generator) runPubGet() {
+	cmd := exec.Command(`pub`, `get`)
+	cmd.Dir = g.BasePath
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	if err := cmd.Run(); err != nil {
+		panic(err)
+	}
 }
