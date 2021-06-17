@@ -11,8 +11,11 @@ func Generate(scalar, exponent float64, maxDepth, itemsPerGroup int, dryRun, use
 	for _, group := range groups {
 		group.Write(dryRun, basePath)
 	}
-	// root := allNodes[0]
+
+	root := allNodes[0]
 	// root.PrintTree(``, true)
+	writeWeb(dryRun, basePath, root)
+	writeHtml(dryRun, basePath, root)
 }
 
 // bound will return the given value or 1, whichever is greater.
@@ -94,4 +97,26 @@ func groupNodes(allNodes []Node, itemsPerGroup int, useLibraries bool) []*Group 
 		start = stop
 	}
 	return groups
+}
+
+func writeWeb(dryRun bool, basePath string, root Node) {
+	out := NewOutput(dryRun, basePath, `web`, `main.dart`)
+	defer out.Close()
+
+	// TODO: Implement
+}
+
+func writeHtml(dryRun bool, basePath string, root Node) {
+	out := NewOutput(dryRun, basePath, `web`, `index.html`)
+	defer out.Close()
+
+	out.WriteLine(`<!DOCTYPE html>`)
+	out.WriteLine(`<html>`)
+	out.WriteLine(`  <head>`)
+	out.WriteLine(`    <title>Loading Dart...</title>`)
+	out.WriteLine(`  </head>`)
+	out.WriteLine(`  <body>`)
+	out.WriteLine(`    <script defer src="main.dart.js"></script>`)
+	out.WriteLine(`  </body>`)
+	out.WriteLine(`</html>`)
 }

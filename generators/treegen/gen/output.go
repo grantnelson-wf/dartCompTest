@@ -12,10 +12,14 @@ type Output struct {
 	f      *os.File
 }
 
-// NewOutput will create the file or output for the given item.
+// NewItemOutput will create the file or output for the given item.
 // The given path parts are prepended to the the given item's file name.
-func NewOutput(dryRun bool, item Item, pathParts ...string) *Output {
-	pathParts = append(pathParts, item.String()+".dart")
+func NewItemOutput(dryRun bool, item Item, pathParts ...string) *Output {
+	return NewOutput(dryRun, append(pathParts, item.String()+".dart")...)
+}
+
+// NewOutput will create the file or output.
+func NewOutput(dryRun bool, pathParts ...string) *Output {
 	path := path.Join(pathParts...)
 
 	var f *os.File

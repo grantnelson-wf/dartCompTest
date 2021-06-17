@@ -6,6 +6,10 @@ Experimental test of dart compiling different type of code bases.
 
 > `./setup.sh`
 
+Generating treatments with something like
+
+> `go run ./generators/treegen/main.go -out ./treatments/filedepss2`
+
 ## Running Experiment
 
 > `go run ./experiment/main.go`

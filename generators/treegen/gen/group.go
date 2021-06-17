@@ -63,7 +63,7 @@ func (g *Group) Write(dryRun bool, basePath string) {
 
 // writeLibraryFile writes the library file for this group.
 func (g *Group) writeLibraryFile(dryRun bool, basePath string) {
-	out := NewOutput(dryRun, g, basePath, `lib`, `src`)
+	out := NewItemOutput(dryRun, g, basePath, `lib`, `src`)
 	defer out.Close()
 
 	out.WriteLine(`library `, g, `;`)
@@ -97,7 +97,7 @@ func (g *Group) writeLibraryFile(dryRun bool, basePath string) {
 
 // writeExport will write the export file for the group.
 func (g *Group) writeExport(dryRun bool, basePath string) {
-	out := NewOutput(dryRun, g, basePath, `lib`)
+	out := NewItemOutput(dryRun, g, basePath, `lib`)
 	defer out.Close()
 
 	if g.IsLibrary() {

@@ -67,7 +67,7 @@ func (n *Branch) Write(dryRun bool, basePath string) {
 		panic(fmt.Errorf("may not write a branch with no children"))
 	}
 
-	out := NewOutput(dryRun, n, basePath, `lib`, `src`)
+	out := NewItemOutput(dryRun, n, basePath, `lib`, `src`)
 	defer out.Close()
 
 	if n.group.IsLibrary() {
