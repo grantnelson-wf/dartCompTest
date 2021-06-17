@@ -11,12 +11,12 @@ import (
 // main is the entry point for the file dependency or library dependency generator.
 // This will generate a large amount of dart code to test different build models.
 func main() {
-	// defer func() { // TODO: RESTORE
-	// 	if r := recover(); r != nil {
-	// 		fmt.Printf("Tree generation failed: %v\n", r)
-	// 		os.Exit(1)
-	// 	}
-	// }()
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Tree generation failed: %v\n", r)
+			os.Exit(1)
+		}
+	}()
 
 	scalar := 1.0
 	flag.Float64Var(&scalar, "scalar", scalar,

@@ -39,6 +39,15 @@ func (n *Leaf) setGroup(group *Group, index int) {
 	n.index = index
 }
 
+// PrintTree prints this node and any children to the console as a tree.
+func (n *Leaf) PrintTree(indent string, last bool) {
+	if last {
+		fmt.Println(indent+` '--leaf`, n, `:`, n.value)
+	} else {
+		fmt.Println(indent+` |--leaf`, n, `:`, n.value)
+	}
+}
+
 // String gets the file name name without any extension for this leaf.
 func (n *Leaf) String() string {
 	return fmt.Sprint(n.group, "_", n.index)

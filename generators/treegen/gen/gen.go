@@ -1,7 +1,6 @@
 package gen
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -12,6 +11,8 @@ func Generate(scalar, exponent float64, maxDepth, itemsPerGroup int, dryRun, use
 	for _, group := range groups {
 		group.Write(dryRun, basePath)
 	}
+	root := allNodes[0]
+	root.PrintTree(``, true)
 }
 
 // bound will return the given value or 1, whichever is greater.
@@ -52,14 +53,12 @@ func createBreadth(scalar, exponent float64, depth, maxDepth int) []Node {
 // assignParents will distribute the children, curNodes, as evenly as possible among the given parents,
 // prevNodes. The parents are assumed to be branch nodes, otherwise this shouldn't be called.
 func assignParents(prevNodes, curNodes []Node) {
-	count := len(curNodes)
-	childrenPerBranch := bound(count / len(prevNodes))
-	fmt.Println("> count:            ", count)          // TODO: REMOVE
-	fmt.Println("> len(prevNodes):   ", len(prevNodes)) // TODO: REMOVE
-	fmt.Println("> childrenPerBranch:", len(prevNodes)) // TODO: REMOVE
-	for i, start, stop := 0, 0, childrenPerBranch; start < count; i, start, stop = i+1, stop, limit(stop+childrenPerBranch, count) {
-		fmt.Println(">> (", i, ", ", start, ", ", stop, ")") // TODO: REMOVE
-		prevNodes[i].(*Branch).Add(curNodes[start:stop]...)
+	ratio := float64(len(curNodes)) / float64(len(prevNodes))
+	start := 0
+	for i, parent := range prevNodes {
+		stop := int(float64(i+1) * ratio)
+		parent.(*Branch).Add(curNodes[start:stop]...)
+		start = stop
 	}
 }
 
@@ -70,7 +69,6 @@ func generateDependencyTree(scalar, exponent float64, maxDepth int) []Node {
 	allNodes := []Node{root}
 	prevNodes := []Node{root}
 	for depth := 1; depth <= maxDepth; depth++ {
-		fmt.Println("depth:", depth) // TODO: REMOVE
 		curNodes := createBreadth(scalar, exponent, depth, maxDepth)
 		assignParents(prevNodes, curNodes)
 		prevNodes = curNodes

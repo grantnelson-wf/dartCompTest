@@ -20,8 +20,9 @@ func NewOutput(dryRun bool, item Item, pathParts ...string) *Output {
 
 	var f *os.File
 	if dryRun {
+		fmt.Println("+---------------------------------------------------------")
 		fmt.Println("|", path)
-		fmt.Println("+-------------------")
+		fmt.Println("+---------------------------------------------------------")
 	} else {
 		var err error
 		if f, err = os.Create(path); err != nil {
@@ -42,7 +43,8 @@ func (out *Output) Close() {
 		out.f = nil
 	}
 	if out.dryRun {
-		fmt.Println("+-------------------")
+		fmt.Println("+---------------------------------------------------------")
+		fmt.Println()
 	}
 }
 

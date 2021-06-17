@@ -39,6 +39,22 @@ func (n *Branch) setGroup(group *Group, index int) {
 	n.index = index
 }
 
+// PrintTree prints this node and any children to the console as a tree.
+func (n *Branch) PrintTree(indent string, last bool) {
+	count := len(n.children)
+	if last {
+		fmt.Println(indent+` '--branch`, n)
+		for i, item := range n.children {
+			item.PrintTree(indent+`   `, i+1 == count)
+		}
+	} else {
+		fmt.Println(indent+` |--branch`, n)
+		for i, item := range n.children {
+			item.PrintTree(indent+` | `, i+1 == count)
+		}
+	}
+}
+
 // String gets the file name name without any extension for this branch.
 func (n *Branch) String() string {
 	return fmt.Sprint(n.group, "_", n.index)
@@ -104,18 +120,18 @@ func (n *Branch) Write(dryRun bool, basePath string) {
 	out.WriteLine(`   int get sum =>`)
 	for i := range n.children {
 		if i == maxIndex {
-			out.WriteLine(`      _item`, i, `.sum +`)
-		} else {
 			out.WriteLine(`      _item`, i, `.sum;`)
+		} else {
+			out.WriteLine(`      _item`, i, `.sum +`)
 		}
 	}
 	out.WriteLine()
 	out.WriteLine(`   int get count =>`)
 	for i := range n.children {
 		if i == maxIndex {
-			out.WriteLine(`      _item`, i, `.count +`)
-		} else {
 			out.WriteLine(`      _item`, i, `.count;`)
+		} else {
+			out.WriteLine(`      _item`, i, `.count +`)
 		}
 	}
 	out.WriteLine(`}`)

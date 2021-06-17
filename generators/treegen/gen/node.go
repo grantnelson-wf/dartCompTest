@@ -23,5 +23,8 @@ type (
 		// setGroup should only be called by a group when an item is being added to the group
 		// and is used to set the group an item belongs to.
 		setGroup(group *Group, index int)
+
+		// PrintTree prints this node and any children to the console as a tree.
+		PrintTree(indent string, last bool)
 	}
 )
