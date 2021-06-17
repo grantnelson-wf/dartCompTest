@@ -10,7 +10,7 @@ type (
 
 		// Write will write the file for this item in the given base path.
 		// This base path is the folder that should contain the `lib` folder.
-		Write(dryRun bool, basePath string)
+		Write(dryRun bool, basePath, packageName string)
 	}
 
 	// Node is the interface for any part of the dependency tree being built.

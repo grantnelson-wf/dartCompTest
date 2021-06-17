@@ -1,6 +1,7 @@
 # The dart files are generated so do not commt them.
 *.dart
 *.html
+*.yaml
 
 # Don’t commit the following directories created by pub.
 .buildlog

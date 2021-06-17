@@ -62,12 +62,12 @@ func (n *Branch) String() string {
 
 // Write will write this branch's file in the given base path.
 // This base path is the folder that should contain the `lib` folder.
-func (n *Branch) Write(dryRun bool, basePath string) {
+func (n *Branch) Write(dryRun bool, basePath, packageName string) {
 	if len(n.children) <= 0 {
 		panic(fmt.Errorf("may not write a branch with no children"))
 	}
 
-	out := NewItemOutput(dryRun, n, basePath, `lib`, `src`)
+	out := NewItemOutput(dryRun, n, basePath, `lib`, `src`, n.group.String())
 	defer out.Close()
 
 	if n.group.IsLibrary() {
@@ -77,7 +77,7 @@ func (n *Branch) Write(dryRun bool, basePath string) {
 		hasImports := false
 		for _, item := range n.children {
 			if item.Group() != n.group {
-				out.WriteLine(`import 'package:`, item.Group(), `/`, item, `.dart';`)
+				out.WriteLine(`import 'package:`, packageName, `/`, item, `.dart';`)
 				hasImports = true
 			}
 		}

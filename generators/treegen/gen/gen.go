@@ -5,17 +5,24 @@ import (
 )
 
 // Generate will generate a dependency tree of files for a large treatment example code.
-func Generate(scalar, exponent float64, maxDepth, itemsPerGroup int, dryRun, useLibraries bool, basePath string) {
+func Generate(scalar, exponent float64,
+	maxDepth, itemsPerGroup int,
+	dryRun, useLibraries bool,
+	basePath, packageName string) {
 	allNodes := generateDependencyTree(scalar, exponent, maxDepth)
 	groups := groupNodes(allNodes, itemsPerGroup, useLibraries)
 	for _, group := range groups {
-		group.Write(dryRun, basePath)
+		group.Write(dryRun, basePath, packageName)
 	}
 
 	root := allNodes[0]
-	// root.PrintTree(``, true)
-	writeWeb(dryRun, basePath, root)
+	writeYaml(dryRun, basePath, packageName)
+	writeWeb(dryRun, basePath, packageName, root)
 	writeHtml(dryRun, basePath, root)
+
+	if dryRun {
+		root.PrintTree(``, true)
+	}
 }
 
 // bound will return the given value or 1, whichever is greater.
@@ -99,11 +106,47 @@ func groupNodes(allNodes []Node, itemsPerGroup int, useLibraries bool) []*Group 
 	return groups
 }
 
-func writeWeb(dryRun bool, basePath string, root Node) {
+func writeYaml(dryRun bool, basePath, packageName string) {
+	out := NewOutput(dryRun, basePath, `web`, `pubspec.yaml`)
+	defer out.Close()
+
+	out.WriteLine(`name: `, packageName)
+	out.WriteLine(`version: 0.1.0`)
+	out.WriteLine()
+	out.WriteLine(`environment:`)
+	out.WriteLine(`  sdk: '>=2.7.0 <3.0.0'`)
+	out.WriteLine()
+	out.WriteLine(`dev_dependencies:`)
+	out.WriteLine(`  dart_dev: ^3.6.1`)
+	out.WriteLine(`  build_runner: ^1.10.0`)
+	out.WriteLine(`  build_web_compilers: ^2.9.0`)
+}
+
+func writeWeb(dryRun bool, basePath, packageName string, root Node) {
 	out := NewOutput(dryRun, basePath, `web`, `main.dart`)
 	defer out.Close()
 
-	// TODO: Implement
+	out.WriteLine(`import 'dart:html';`)
+	out.WriteLine()
+	if root.Group().IsLibrary() {
+		out.WriteLine(`import 'package:`, packageName, `/`, root.Group(), `.dart';`)
+	} else {
+		out.WriteLine(`import 'package:`, packageName, `/`, root, `.dart';`)
+	}
+	out.WriteLine()
+	out.WriteLine(`void main() {`)
+	out.WriteLine(`  document.title = 'TreeGen - `, packageName, `';`)
+	out.WriteLine()
+	out.WriteLine(`  final root = `, root, `();`)
+	out.WriteLine(`  final text1 = DivElement()..innerText = 'Hash = ${root.hash}';`)
+	out.WriteLine(`  final text2 = DivElement()..innerText = 'Sum = ${root.sum}';`)
+	out.WriteLine(`  final text3 = DivElement()..innerText = 'Count = ${root.count}';`)
+	out.WriteLine()
+	out.WriteLine(`  document.body`)
+	out.WriteLine(`    ..append(text1)`)
+	out.WriteLine(`    ..append(text2)`)
+	out.WriteLine(`    ..append(text3);`)
+	out.WriteLine(`}`)
 }
 
 func writeHtml(dryRun bool, basePath string, root Node) {

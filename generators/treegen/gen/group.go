@@ -46,24 +46,24 @@ func (g *Group) Add(members ...Node) {
 // Write will write this group's files in the given base path.
 // This will tell all the groups items to also write.
 // This base path is the folder that should contain the `lib` folder.
-func (g *Group) Write(dryRun bool, basePath string) {
+func (g *Group) Write(dryRun bool, basePath, packageName string) {
 	if len(g.members) <= 0 {
 		panic(fmt.Errorf("may not write a group with no members"))
 	}
 
 	for _, node := range g.members {
-		node.Write(dryRun, basePath)
+		node.Write(dryRun, basePath, packageName)
 	}
 
 	if g.IsLibrary() {
-		g.writeLibraryFile(dryRun, basePath)
+		g.writeLibraryFile(dryRun, basePath, packageName)
 	}
 	g.writeExport(dryRun, basePath)
 }
 
 // writeLibraryFile writes the library file for this group.
-func (g *Group) writeLibraryFile(dryRun bool, basePath string) {
-	out := NewItemOutput(dryRun, g, basePath, `lib`, `src`)
+func (g *Group) writeLibraryFile(dryRun bool, basePath, packageName string) {
+	out := NewItemOutput(dryRun, g, basePath, `lib`, `src`, g.String())
 	defer out.Close()
 
 	out.WriteLine(`library `, g, `;`)
@@ -84,7 +84,7 @@ func (g *Group) writeLibraryFile(dryRun bool, basePath string) {
 		}
 		sort.Strings(sortedImports)
 		for _, name := range sortedImports {
-			out.WriteLine(`import 'package:`, name, `/`, name, `.dart';`)
+			out.WriteLine(`import 'package:`, packageName, `/`, name, `.dart';`)
 		}
 		out.WriteLine()
 	}
@@ -104,11 +104,9 @@ func (g *Group) writeExport(dryRun bool, basePath string) {
 		out.WriteLine(`library `, g, `;`)
 		out.WriteLine()
 		out.WriteLine(`export 'src/`, g, `/`, g, `.dart';`)
-		out.WriteLine()
 	} else {
 		for _, item := range g.members {
 			out.WriteLine(`export 'src/`, g, `/`, item, `.dart';`)
 		}
-		out.WriteLine()
 	}
 }

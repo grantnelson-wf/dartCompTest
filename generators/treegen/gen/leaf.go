@@ -55,8 +55,8 @@ func (n *Leaf) String() string {
 
 // Write will write this leaf's file in the given base path.
 // This base path is the folder that should contain the `lib` folder.
-func (n *Leaf) Write(dryRun bool, basePath string) {
-	out := NewItemOutput(dryRun, n, basePath, `lib`, `src`)
+func (n *Leaf) Write(dryRun bool, basePath, packageName string) {
+	out := NewItemOutput(dryRun, n, basePath, `lib`, `src`, n.group.String())
 	defer out.Close()
 
 	if n.group.IsLibrary() {
