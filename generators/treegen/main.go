@@ -26,7 +26,7 @@ func main() {
 		dryRun    = false
 		runPubGet = false
 
-		basePath    = ``
+		basePath    = `.`
 		packageName = `TreeGen`
 
 		scalar        = 1.0
@@ -36,6 +36,7 @@ func main() {
 		useLibraries  = false
 		randomSeed    = false
 		updateFrac    = 0.0
+		updateConst   = 0
 	)
 
 	flag.BoolVar(&deleteOld, `del`, deleteOld,
@@ -71,7 +72,9 @@ func main() {
 	flag.BoolVar(&randomSeed, `rand`, randomSeed,
 		`Indicates that the values used for the leafs should be fully randomized.`)
 	flag.Float64Var(&updateFrac, `frac`, updateFrac,
-		`The fraction of leaves, between 0.0 and 1.0, to update during the update.`)
+		`The fraction of leaves, between 0.0 and 1.0, to update during the update. The fraction is the 'frac' in 'frac * |leaves| + c'.`)
+	flag.IntVar(&updateConst, `c`, updateConst,
+		`The constant number of leaves to update during the update. The constant is the 'c' in 'frac * |leaves| + c'.`)
 
 	flag.Parse()
 
@@ -93,6 +96,7 @@ func main() {
 		UseLibraries:  useLibraries,
 		RandomSeed:    randomSeed,
 		UpdateFrac:    updateFrac,
+		UpdateConst:   updateConst,
 	}.Run()
 
 	os.Exit(0)

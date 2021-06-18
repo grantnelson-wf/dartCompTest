@@ -35,6 +35,7 @@ type Generator struct {
 	UseLibraries  bool
 	RandomSeed    bool
 	UpdateFrac    float64
+	UpdateConst   int
 }
 
 // Run will run the current configuration and potentially
@@ -72,10 +73,11 @@ func (g Generator) Run() {
 	}
 
 	if g.Update {
-		rand.Shuffle(len(leaves), func(i, j int) {
+		leafCount := len(leaves)
+		rand.Shuffle(leafCount, func(i, j int) {
 			leaves[i], leaves[j] = leaves[j], leaves[i]
 		})
-		amount := bound(int(g.UpdateFrac * float64(len(leaves))))
+		amount := limit(bound(g.UpdateConst+int(g.UpdateFrac*float64(leafCount))), leafCount)
 		update := leaves[0:amount]
 		for _, leaf := range update {
 			leaf.Write(g.DryRun, g.BasePath, g.PackageName)
@@ -114,6 +116,9 @@ func (g *Generator) validateConfig() {
 	}
 	if g.UpdateFrac < 0.0 || g.UpdateFrac > 1.0 {
 		panic(fmt.Errorf(`the update fraction must be between 0.0 and 1.0`))
+	}
+	if g.UpdateConst < 0 {
+		panic(fmt.Errorf(`the update constant must be greater than zero`))
 	}
 }
 
