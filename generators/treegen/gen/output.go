@@ -81,3 +81,16 @@ func (out *Output) WriteLine(parts ...interface{}) {
 		}
 	}
 }
+
+// DeletePath will delete the folder and any files within that folder
+// at the given path.
+func DeletePath(dryRun bool, pathParts ...string) {
+	fullPath := path.Join(pathParts...)
+	if dryRun {
+		fmt.Println(`Delete`, fullPath)
+	} else {
+		if err := os.RemoveAll(fullPath); err != nil {
+			panic(err)
+		}
+	}
+}

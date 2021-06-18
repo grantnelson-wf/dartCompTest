@@ -62,7 +62,7 @@ func (n *Branch) PrintTree(indent string, last bool) {
 
 // String gets the file name name without any extension for this branch.
 func (n *Branch) String() string {
-	return fmt.Sprint(n.group, "_", n.index)
+	return fmt.Sprint(n.group, "_branch", n.index)
 }
 
 // Write will write this branch's file in the given base path.

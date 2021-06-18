@@ -6,11 +6,16 @@ Experimental test of dart compiling different type of code bases.
 
 > `./setup.sh`
 
-Generating treatments with something like
+### Generating treatments
 
-> `go run ./generators/treegen/main.go -out ./treatments/filedeps_gen -pubget -exp 2 -depth 10 -scalar 10 -group 15`
+For some treatments the code has to be generated. They can be generated with something like:
+
+> `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/filedeps_gen -rate 2 -depth 10 -scalar 10 -group 15`
 >
-> `go run ./generators/treegen/main.go -out ./treatments/libdeps_gen -lib -pubget -exp 2 -depth 10 -scalar 10 -group 15`
+> `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/libdeps_gen -lib -rate 2 -depth 10 -scalar 10 -group 15`
+
+Based on what size and what you are testing will depend on how you want to configure that generation.
+To see possible configurations get help with `go run ./generators/treegen/main.go -h`.
 
 ## Running Experiment
 
@@ -44,6 +49,10 @@ If a treatment times out it is possible its because the dart compiler got stuck 
 use the following command to see if the dart compiler is still alive and needs to be killed.
 
 > `lsof -P | grep localhost | grep dart`
+
+or
+
+> `killall dart`
 
 Also, if you want to analysis the results, you may have to manually
 remove any incomplete replicas from the results file prior to analysis.

@@ -55,7 +55,7 @@ func (n *Leaf) PrintTree(indent string, last bool) {
 
 // String gets the file name name without any extension for this leaf.
 func (n *Leaf) String() string {
-	return fmt.Sprint(n.group, "_", n.index)
+	return fmt.Sprint(n.group, "_leaf", n.index)
 }
 
 // Write will write this leaf's file in the given base path.

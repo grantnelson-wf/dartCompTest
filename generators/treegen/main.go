@@ -18,79 +18,82 @@ func main() {
 		}
 	}()
 
-	scalar := 1.0
-	flag.Float64Var(&scalar, `scalar`, scalar,
-		`The scalar to apply to the growth factor of the tree. The 'a' in 'ax^e'. Must be positive.`)
+	var (
+		deleteOld = false
+		generate  = false
+		update    = false
+		showTree  = false
+		dryRun    = false
+		runPubGet = false
 
-	exponent := 1.0
-	flag.Float64Var(&exponent, `exp`, exponent,
-		`The exponent to apply to the growth factor of the tree. The 'b' in 'ax^b'. Must be one or greater.`)
+		basePath    = ``
+		packageName = `TreeGen`
 
-	maxDepth := 4
-	flag.IntVar(&maxDepth, `depth`, maxDepth,
-		`The maximum depth to grow the dependency tree.`)
+		scalar        = 1.0
+		rate          = 1.0
+		maxDepth      = 4
+		itemsPerGroup = 10
+		useLibraries  = false
+		randomSeed    = false
+		updateFrac    = 0.0
+	)
 
-	itemsPerGroup := 10
-	flag.IntVar(&itemsPerGroup, `group`, itemsPerGroup,
-		`The maximum number of items that can be put into a group.`)
-
-	useLibraries := false
-	flag.BoolVar(&useLibraries, `lib`, useLibraries,
-		`Indicates that the resulting files should be in libraries. File level dependencies will be used otherwise.`)
-
-	dryRun := false
+	flag.BoolVar(&deleteOld, `del`, deleteOld,
+		`Indicates that any old generated code will be deleted before adding the new generated code. `+
+			`Must delete manually or with this if changing the dependency trees growth or depth.`)
+	flag.BoolVar(&generate, `gen`, generate,
+		`Indicates that the dependency tree should be generated and written.`)
+	flag.BoolVar(&update, `update`, update,
+		`Indicates that some of the leaves will be rewritten. This should be accompanied with the fraction (frac) to update. `+
+			`Recommend using a random seed (rand) when updating.`)
+	flag.BoolVar(&showTree, `tree`, showTree,
+		`Indicates that the dependency tree diagram should be printed to the console.`)
 	flag.BoolVar(&dryRun, `dry`, dryRun,
 		`Indicates that the files should not be written. Instead a dry run will be run and the outputs are written to the console.`)
-
-	randomSeed := false
-	flag.BoolVar(&randomSeed, `rand`, randomSeed,
-		`Indicates that the values used for the leafs should be fully randomized.`)
-
-	runPubGet := false
 	flag.BoolVar(&runPubGet, `pubget`, runPubGet,
 		`Indicates that after generating the code "pub get" should be automatically run.`)
 
-	showTree := false
-	flag.BoolVar(&showTree, `tree`, showTree,
-		`Indicates that the dependency tree diagram should be printed to the console.`)
-
-	basePath := ``
 	flag.StringVar(&basePath, `out`, basePath,
 		`The required base path to write the generatred files to. This is the path that should have the 'lib' folder in it.`)
-
-	packageName := `TreeGen`
 	flag.StringVar(&packageName, `package`, packageName,
 		`The name of the package to use for this generated code.`)
 
+	flag.Float64Var(&scalar, `scalar`, scalar,
+		`The scalar to apply to the growth factor of the tree. The 'a' in 'a(b^x)'. Must be positive.`)
+	flag.Float64Var(&rate, `rate`, rate,
+		`The rate to apply to the growth factor of the tree. The 'b' in 'a(b^x)'. Must be one or greater.`)
+	flag.IntVar(&maxDepth, `depth`, maxDepth,
+		`The maximum depth to grow the dependency tree. The depth is the 'x' in 'a(b^x)'. Must be one or greater.`)
+	flag.IntVar(&itemsPerGroup, `group`, itemsPerGroup,
+		`The maximum number of items that can be put into a group.`)
+	flag.BoolVar(&useLibraries, `lib`, useLibraries,
+		`Indicates that the resulting files should be in libraries. File level dependencies will be used otherwise.`)
+	flag.BoolVar(&randomSeed, `rand`, randomSeed,
+		`Indicates that the values used for the leafs should be fully randomized.`)
+	flag.Float64Var(&updateFrac, `frac`, updateFrac,
+		`The fraction of leaves, between 0.0 and 1.0, to update during the update.`)
+
 	flag.Parse()
 
-	if len(basePath) <= 0 {
-		panic(fmt.Errorf(`must provide the base path to write to`))
-	}
-	if itemsPerGroup < 1 {
-		panic(fmt.Errorf(`items per group must be greater than one`))
-	}
-	if maxDepth < 1 {
-		panic(fmt.Errorf(`maximum depth must be greater than one`))
-	}
-	if len(packageName) <= 0 {
-		panic(fmt.Errorf(`must have a non-empty package name`))
-	}
+	gen.Generator{
+		DeleteOld: deleteOld,
+		Generate:  generate,
+		Update:    update,
+		ShowTree:  showTree,
+		DryRun:    dryRun,
+		RunPubGet: runPubGet,
 
-	g := &gen.Generator{
+		BasePath:    basePath,
+		PackageName: packageName,
+
 		Scalar:        scalar,
-		Exponent:      exponent,
+		Rate:          rate,
 		MaxDepth:      maxDepth,
 		ItemsPerGroup: itemsPerGroup,
-		DryRun:        dryRun,
-		RunPubGet:     runPubGet,
-		ShowTree:      showTree,
 		UseLibraries:  useLibraries,
-		BasePath:      basePath,
-		PackageName:   packageName,
 		RandomSeed:    randomSeed,
-	}
-	g.Generate()
+		UpdateFrac:    updateFrac,
+	}.Run()
 
 	os.Exit(0)
 }

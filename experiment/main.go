@@ -61,7 +61,7 @@ func addTreatments_FileVsLib_Generated_Dart2js(trial *trial.Trial) {
 		PrepareCommand(`rm`, `-rf`, `build`).
 		RunCommand(`webdev`, `build`)
 
-	trial.SetTimeouts(30*time.Second, 2*time.Minute)
+	trial.SetTimeouts(30*time.Second, 5*time.Minute)
 }
 
 // main is the entry point for the experiment.
