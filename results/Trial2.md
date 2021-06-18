@@ -2,8 +2,7 @@
 
 ## Setup
 
-Change the main experiment to run using treatments `filedeps_gen` and `libdeps_gen`.
-
+- Change the main experiment to run using treatments from `addTreatments_FileVsLib_Generated_Dart2js`.
 - `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/filedeps_gen -rate 2 -depth 8 -scalar 2 -group 15`
 - `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/libdeps_gen -lib -rate 2 -depth 8 -scalar 2 -group 15`
 - `go run ./experiment/main.go`
@@ -84,5 +83,6 @@ order:index  0.002507   1.0    0.191803  6.647802e-01
 Residual     0.366014  28.0         NaN           NaN
 ```
 
-There is significant evidence to reject the null hypothesis that there is no difference between file and library deps,
-meaning that file and library deps likely take a different amount of time to build for the current configuration.
+There is significant evidence to reject the null hypothesis.
+The null hypothesis is that there is no difference between File_Dep and Library_Dep treatments when building after deleting the `build` folder.
+Meaning that file and library deps likely take a different amount of time to build for the current configuration.

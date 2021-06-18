@@ -68,18 +68,28 @@ func (t *Treatment) Path(parts ...string) *Treatment {
 	return t
 }
 
+// joinComand converts the given arguments into strings and
+// creates one string slice for a command.
+func joinComand(cmd string, args []interface{}) []string {
+	strargs := make([]string, len(args))
+	for i, a := range args {
+		strargs[i] = fmt.Sprint(a)
+	}
+	return append([]string{cmd}, strargs...)
+}
+
 // RunCommand sets the command to run and will be measured.
 // Returns the receiver so that these calls can be chained together.
-func (t *Treatment) RunCommand(cmd string, args ...string) *Treatment {
-	t.runCmd = append([]string{cmd}, args...)
+func (t *Treatment) RunCommand(cmd string, args ...interface{}) *Treatment {
+	t.runCmd = joinComand(cmd, args)
 	return t
 }
 
 // PrepareCommand is the command to run to prepare the treatment.
 // This command will not be measured. If not set then nothing will be run.
 // Returns the receiver so that these calls can be chained together.
-func (t *Treatment) PrepareCommand(cmd string, args ...string) *Treatment {
-	t.prepareCmd = append([]string{cmd}, args...)
+func (t *Treatment) PrepareCommand(cmd string, args ...interface{}) *Treatment {
+	t.prepareCmd = joinComand(cmd, args)
 	return t
 }
 

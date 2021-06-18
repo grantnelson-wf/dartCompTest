@@ -80,7 +80,6 @@ func (g Generator) Run() {
 		for _, leaf := range update {
 			leaf.Write(g.DryRun, g.BasePath, g.PackageName)
 		}
-
 	}
 
 	if g.ShowTree {

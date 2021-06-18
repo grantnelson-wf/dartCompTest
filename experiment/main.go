@@ -64,6 +64,30 @@ func addTreatments_FileVsLib_Generated_Dart2js(trial *trial.Trial) {
 	trial.SetTimeouts(30*time.Second, 5*time.Minute)
 }
 
+// addTreatments_FileVsLib_Generated_Change10_Dart2js defines the treatments which should be run in an experiment.
+// This experiment runs pre-built generated file dependencies against the pre-built generated library dependencies
+// after changing 10% of the leaf values instead of deleting the build directory.
+// This expects generated files with `-rate 2 -depth 8 -scalar 2`.
+// Both will compile with Dart2js. Note that the commands are relative to the given path.
+func addTreatments_FileVsLib_Generated_Change10_Dart2js(trial *trial.Trial) {
+	trial.AddTreatment().
+		Name(`File_Dep`).
+		Path(`treatments/filedeps_gen`).
+		PrepareCommand(`go`, `run`, `../../generators/treegen/main.go`, `-update`, `-out`, `.`,
+			`-rate`, 2, `-depth`, 8, `-scalar`, 2, `-group`, 15, `-frac`, 0.1).
+		RunCommand(`webdev`, `build`)
+
+	trial.AddTreatment().
+		Name(`Library_Dep`).
+		Path(`treatments/libdeps_gen`).
+		PrepareCommand(`rm`, `-rf`, `build`).
+		PrepareCommand(`go`, `run`, `../../generators/treegen/main.go`, `-update`, `-lib`, `-out`, `.`,
+			`-rate`, 2, `-depth`, 8, `-scalar`, 2, `-group`, 15, `-frac`, 0.1).
+		RunCommand(`webdev`, `build`)
+
+	trial.SetTimeouts(30*time.Second, 5*time.Minute)
+}
+
 // main is the entry point for the experiment.
 func main() {
 	defer func() {
@@ -89,7 +113,8 @@ func main() {
 	//------------------
 	//addTreatments_FileVsLib_Dart2js(trial)
 	//addTreatments_Dart2jsVsDartDevC_File(trial)
-	addTreatments_FileVsLib_Generated_Dart2js(trial)
+	//addTreatments_FileVsLib_Generated_Dart2js(trial)
+	addTreatments_FileVsLib_Generated_Change10_Dart2js(trial)
 	//------------------
 
 	trial.Run()
