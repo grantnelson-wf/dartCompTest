@@ -325,6 +325,7 @@ func (g *Generator) writeManifest(allNodes []Node, groups []*Group) {
 	out.WriteLine(`useLibraries:  `, g.UseLibraries)
 	out.WriteLine(`randomSeed:    `, g.RandomSeed)
 	out.WriteLine(`updateFrac:    `, fmt.Sprintf("%.4f", g.UpdateFrac))
+	out.WriteLine(`updateConst:   `, g.UpdateConst)
 	out.WriteLine()
 
 	out.WriteLine(`total files:      `, totalFiles)

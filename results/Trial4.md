@@ -1,8 +1,8 @@
-# Trial 3
+# Trial 4
 
-## Setup
+## Procedure
 
-- Changed the main experiment to run using treatments from `addTreatments_FileVsLib_Generated_Change10_Dart2js` but changing the `frac` to `0.01`
+- Changed the main experiment to run using treatments from `addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js` but changing the `frac` to `0.01`
 - `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/filedeps_gen -rate 2 -depth 8 -scalar 2 -group 15`
 - `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/libdeps_gen -lib -rate 2 -depth 8 -scalar 2 -group 15`
 - `go run ./experiment/main.go`

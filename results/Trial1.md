@@ -1,6 +1,6 @@
 # Trial 1
 
-## Setup
+## Procedure
 
 - Change the main experiment to run using treatments from `addTreatments_FileVsLib_Generated_Dart2js`.
 - `go run ./generators/treegen/main.go -del -gen -pubget -out ./treatments/filedeps_gen -rate 2 -depth 10 -scalar 2 -group 15`
