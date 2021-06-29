@@ -1,5 +1,11 @@
 # Trial 3
 
+- Rate:   2.0
+- Scalar: 2.0
+- Depth:  8
+- Group:  15
+- Frac:   10%
+
 ## Procedure
 
 - Changed the main experiment to run using treatments from `addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js` and made sure the `frac` was `0.1`

@@ -102,19 +102,19 @@ func (n *Branch) Write(dryRun bool, basePath, packageName string) {
 
 	out.WriteLine(`class `, n, `{`)
 	for i, item := range n.children {
-		out.WriteLine(`   `, item, ` _item`, i, `;`)
+		out.WriteLine(`   `, item, `? _item`, i, ` = null;`)
 	}
 	out.WriteLine()
 	out.WriteLine(`   `, n, `() {`)
 	for i, item := range n.children {
-		out.WriteLine(`      _item`, i, ` = new `, item, `();`)
+		out.WriteLine(`      _item`, i, ` = `, item, `();`)
 	}
 	out.WriteLine(`   }`)
 	out.WriteLine()
 	out.WriteLine(`   int get hash {`)
 	out.WriteLine(`      int hashcode = 1430287;`)
 	for i := range n.children {
-		out.WriteLine(`      hashcode *= 7302013 ^ _item`, i, `.hash;`)
+		out.WriteLine(`      hashcode *= 7302013 ^ (_item`, i, `?.hash ?? 0);`)
 	}
 	out.WriteLine(`      return hashcode;`)
 	out.WriteLine(`   }`)
@@ -122,18 +122,18 @@ func (n *Branch) Write(dryRun bool, basePath, packageName string) {
 	out.WriteLine(`   int get sum =>`)
 	for i := range n.children {
 		if i == maxIndex {
-			out.WriteLine(`      _item`, i, `.sum;`)
+			out.WriteLine(`      (_item`, i, `?.sum ?? 0);`)
 		} else {
-			out.WriteLine(`      _item`, i, `.sum +`)
+			out.WriteLine(`      (_item`, i, `?.sum ?? 0) +`)
 		}
 	}
 	out.WriteLine()
 	out.WriteLine(`   int get count =>`)
 	for i := range n.children {
 		if i == maxIndex {
-			out.WriteLine(`      _item`, i, `.count;`)
+			out.WriteLine(`      (_item`, i, `?.count ?? 0);`)
 		} else {
-			out.WriteLine(`      _item`, i, `.count +`)
+			out.WriteLine(`      (_item`, i, `?.count ?? 0) +`)
 		}
 	}
 	out.WriteLine(`}`)

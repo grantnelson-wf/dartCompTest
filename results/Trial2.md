@@ -1,5 +1,10 @@
 # Trial 2
 
+- Rate:   2.0
+- Scalar: 2.0
+- Depth:  8
+- Group:  15
+
 ## Procedure
 
 - Change the main experiment to run using treatments from `addTreatments_FileVsLib_Generated_Dart2js`.

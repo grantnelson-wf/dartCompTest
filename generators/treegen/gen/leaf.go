@@ -70,11 +70,10 @@ func (n *Leaf) Write(dryRun bool, basePath, packageName string) {
 	}
 
 	out.WriteLine(`class `, n, `{`)
-	out.WriteLine(`   int _value;`)
+	out.WriteLine(`   final int _value;`)
 	out.WriteLine()
-	out.WriteLine(`   `, n, `() {`)
+	out.WriteLine(`   `, n, `(): `)
 	out.WriteLine(`      _value = `, n.value, `;`)
-	out.WriteLine(`   }`)
 	out.WriteLine()
 	out.WriteLine(`   int get hash => _value;`)
 	out.WriteLine()

@@ -224,20 +224,16 @@ func (g *Generator) writeYaml() {
 	defer out.Close()
 
 	out.WriteLine(`name: `, g.PackageName)
-	out.WriteLine(`version: 0.1.0`)
+	out.WriteLine(`version: 0.1.1`)
 	out.WriteLine(`description: An experimental treatment which has been generated`)
 	out.WriteLine()
 	out.WriteLine(`environment:`)
-	out.WriteLine(`  sdk: '>=2.7.0 <3.0.0'`)
-	out.WriteLine()
-	out.WriteLine(`dependencies:`)
-	out.WriteLine(`  validators: ^2.0.1`)
+	out.WriteLine(`  sdk: '>=2.13.0'`)
 	out.WriteLine()
 	out.WriteLine(`dev_dependencies:`)
 	out.WriteLine(`  dart_dev: ^3.6.1`)
 	out.WriteLine(`  build_runner: ^1.10.0`)
-	out.WriteLine(`  build_test: ^1.2.1`)
-	out.WriteLine(`  build_web_compilers: ^2.9.0`)
+	out.WriteLine(`  build_web_compilers: '>=2.12.0'`)
 }
 
 // writeWeb will write the main dart entry point for this package.
@@ -257,10 +253,9 @@ func (g *Generator) writeWeb(root Node) {
 	out.WriteLine(`  final div2 = DivElement()..innerText = 'Sum = ${root.sum}';`)
 	out.WriteLine(`  final div3 = DivElement()..innerText = 'Count = ${root.count}';`)
 	out.WriteLine()
-	out.WriteLine(`  document.body`)
-	out.WriteLine(`    ..append(div1)`)
-	out.WriteLine(`    ..append(div2)`)
-	out.WriteLine(`    ..append(div3);`)
+	out.WriteLine(`  document.body?.append(div1);`)
+	out.WriteLine(`  document.body?.append(div2);`)
+	out.WriteLine(`  document.body?.append(div3);`)
 	out.WriteLine(`}`)
 }
 
