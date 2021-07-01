@@ -70,11 +70,13 @@ func addTreatments_FileVsLib_Generated_Dart2js(trial *trial.Trial) {
 // This expects generated files with `-rate 2 -depth 8 -scalar 2`.
 // Both will compile with Dart2js. Note that the commands are relative to the given path.
 func addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js(trial *trial.Trial) {
+	fraction := 0.01 // 0.1
+
 	trial.AddTreatment().
 		Name(`File_Dep`).
 		Path(`treatments/filedeps_gen`).
 		PrepareCommand(`go`, `run`, `../../generators/treegen/main.go`, `-update`, `-out`, `.`,
-			`-rate`, 2, `-depth`, 8, `-scalar`, 2, `-group`, 15, `-frac`, 0.1).
+			`-rate`, 2, `-depth`, 12, `-scalar`, 2, `-group`, 15, `-frac`, fraction).
 		RunCommand(`webdev`, `build`)
 
 	trial.AddTreatment().
@@ -82,7 +84,7 @@ func addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js(trial *trial.Trial) 
 		Path(`treatments/libdeps_gen`).
 		PrepareCommand(`rm`, `-rf`, `build`).
 		PrepareCommand(`go`, `run`, `../../generators/treegen/main.go`, `-update`, `-lib`, `-out`, `.`,
-			`-rate`, 2, `-depth`, 8, `-scalar`, 2, `-group`, 15, `-frac`, 0.1).
+			`-rate`, 2, `-depth`, 12, `-scalar`, 2, `-group`, 15, `-frac`, fraction).
 		RunCommand(`webdev`, `build`)
 
 	trial.SetTimeouts(30*time.Second, 5*time.Minute)
@@ -114,12 +116,12 @@ func main() {
 	//------------------
 	//addTreatments_FileVsLib_Dart2js(trial)
 	//addTreatments_Dart2jsVsDartDevC_File(trial)
-	addTreatments_FileVsLib_Generated_Dart2js(trial)
-	//addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js(trial)
+	//addTreatments_FileVsLib_Generated_Dart2js(trial)
+	addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js(trial)
 	//------------------
 
 	trial.Run()
 
-	fmt.Println("Experiment done")
+	fmt.Println("Experiment done. Results are in", resultFile)
 	os.Exit(0)
 }

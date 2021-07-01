@@ -55,6 +55,7 @@ order replicate index name seconds
 |-------|-------------|-------------------|
 | 0     | File_Dep    | 4.975775          |
 | 1     | Library_Dep | 4.470568          |
+|       | diff        |  0.505207         |
 
 ## Results
 

@@ -77,6 +77,7 @@ The remaining replicates came from a second run started shortly after the first 
 |-------|-------------|-------------------|
 | 0     | File_Dep    | 5.670822500       |
 | 1     | Library_Dep | 5.084755625       |
+|       | diff        |  0.586066875      |
 
 ## Results
 
