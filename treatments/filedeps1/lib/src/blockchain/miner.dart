@@ -15,10 +15,9 @@ class Miner implements Cancelable {
   final ByteData address;
 
   /// Creates a new block miner for the given [address].
-  Miner(this.address) {
-    _mining = false;
-    _prevNonce = -1;
-  }
+  Miner(this.address)
+      : _mining = false,
+        _prevNonce = -1;
 
   /// This will generate the next nonce to use while mining.
   /// This can be overridden to allow for multiple machines to take different
@@ -33,7 +32,7 @@ class Miner implements Cancelable {
   /// This will modify the nonce and rehash the given block until the
   /// difficulty challange has been reached. The given block will be modified.
   /// The future will return the block if a solution is found, null if cancelled.
-  Future<Block> mine(Block block) async {
+  Future<Block?> mine(Block block) async {
     _mining = true;
     block.minerAddress = address;
     while (_mining) {

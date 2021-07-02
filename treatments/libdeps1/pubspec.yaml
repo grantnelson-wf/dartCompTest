@@ -1,19 +1,22 @@
-
 name: LibDepsTreatment
-version: 0.1.0
+version: 0.1.1
 description: An experimental treatment for building with each file part of a library
+publish_to: none
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: '>=2.13.0'
 
 dependencies:
-  crypto: ^2.1.5
-  cryptography: ^1.4.1
-  event: ^1.1.5
-  validators: ^2.0.1
+  crypto: ^3.0.1
+  cryptography:
+    git:
+      url: git@github.com:grantnelson-wf/cryptography.git
+      path: cryptography
+  event: ^2.0.5
+  validators: ^3.0.0
 
 dev_dependencies:
   dart_dev: ^3.6.1
   build_runner: ^1.10.0
-  build_test: ^1.2.1
-  build_web_compilers: ^2.9.0
+  build_web_compilers: '>=2.12.0'
+

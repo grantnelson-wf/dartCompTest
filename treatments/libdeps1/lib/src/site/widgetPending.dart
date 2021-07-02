@@ -3,28 +3,33 @@ part of site;
 /// A widget for showing pending transactions as a table.
 class WidgetPending implements Widget {
   final CallBack _callBack;
-  DivElement _group;
-  TableElement _pendingTransactions;
+  final DivElement _group;
+  final TableElement _pendingTransactions;
 
   /// Creates the pending transaction widget.
-  WidgetPending(this._callBack) {
+  WidgetPending._(this._callBack, this._group, this._pendingTransactions);
+
+  /// Creates the pending transaction widget.
+  factory WidgetPending(CallBack callBack) {
     final text = new DivElement()
       ..innerText = 'The pending transactions which have not been added to the chain yet via mining a block:'
       ..style.marginBottom = '4px';
 
-    _pendingTransactions = new TableElement()
+    final pendingTransactions = new TableElement()
       ..style.marginLeft = '10px'
       ..style.border = 'none'
       ..style.borderCollapse = 'collapse';
 
-    _group = new DivElement()
+    final group = new DivElement()
       ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'
       ..style.marginBottom = '6px'
       ..append(text)
-      ..append(_pendingTransactions);
+      ..append(pendingTransactions);
+
+    return WidgetPending._(callBack, group, pendingTransactions);
   }
 
   /// Gets the div element containing the widget.
@@ -40,7 +45,7 @@ class WidgetPending implements Widget {
 
   /// Updates the list of pending transactions.
   void updatePending(UnmodifiableListView<Transaction> pending) {
-    final rows = List<TableRowElement>();
+    List<TableRowElement> rows = [];
 
     if (pending.isNotEmpty) {
       final header = TableRowElement()

@@ -2,6 +2,10 @@
 
 Experimental test of dart compiling different type of code bases.
 
+## References
+
+- [Guide to creating dart library packages](https://dart.dev/guides/libraries/create-library-packages)
+
 ## Setting up the Experiment
 
 > `./setup.sh`

@@ -2,34 +2,37 @@ import 'dart:html';
 
 import 'package:FileDepsTreatment/blockchain.dart';
 
-import 'callback.dart';
 import 'widget.dart';
 
 /// A widget for showing the balances for every wallet.
 class WidgetBalance implements Widget {
-  final CallBack _callBack;
-  DivElement _group;
-  TableElement _balanceTable;
+  final DivElement _group;
+  final TableElement _balanceTable;
 
   /// Creates a new balance widget.
-  WidgetBalance(this._callBack) {
+  WidgetBalance._(this._group, this._balanceTable);
+
+  /// Creates a new balance widget.
+  factory WidgetBalance() {
     final text = new DivElement()
       ..innerText = 'The balances for all wallets:'
       ..style.marginBottom = '4px';
 
-    _balanceTable = TableElement()
+    final balanceTable = TableElement()
       ..style.marginLeft = '10px'
       ..style.border = 'none'
       ..style.borderCollapse = 'collapse';
 
-    _group = DivElement()
+    final group = DivElement()
       ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'
       ..style.marginBottom = '6px'
       ..append(text)
-      ..append(_balanceTable);
+      ..append(balanceTable);
+
+    return WidgetBalance._(group, balanceTable);
   }
 
   /// Gets the div element containing the widget.
@@ -37,7 +40,7 @@ class WidgetBalance implements Widget {
 
   /// Updates the balances for each wallet.
   void updateBalances(Map<Wallet, double> balances) {
-    final rows = List<TableRowElement>();
+    List<TableRowElement> rows = [];
 
     balances.forEach((wallet, amount) {
       final row = TableRowElement()

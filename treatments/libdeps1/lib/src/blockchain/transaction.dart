@@ -20,15 +20,15 @@ class Transaction {
   ByteData _signature;
 
   /// Creates an existing transaction with the given values.
-  Transaction(this.timestamp, this.fromAddress, this.toAddress, this.amount, [ByteData signature]) {
-    _signature = signature;
-  }
+  Transaction(this.timestamp, this.fromAddress, this.toAddress, this.amount, [ByteData? signature = null])
+      : _signature = signature ?? ByteData.empty();
 
   /// Creates a new transaction and signs it for the wallet with the given key pair.
-  static Future<Transaction> createAndSign(cryptography.KeyPair fromKeys, ByteData toAddress, double amount) async {
-    final fromAddress = ByteData(fromKeys.publicKey.bytes);
+  static Future<Transaction> createAndSign(
+      cryptography.SimpleKeyPair fromKeys, ByteData toAddress, double amount) async {
+    final fromAddress = ByteData((await fromKeys.extractPublicKey()).bytes);
     final transaction = new Transaction(DateTime.now(), fromAddress, toAddress, amount);
-    final signature = await signatureAlgorithm.sign(transaction.serialize(), fromKeys);
+    final signature = await signatureAlgorithm.sign(transaction.serialize(), keyPair: fromKeys);
     transaction._signature = ByteData(signature.bytes);
     return transaction;
   }
@@ -39,7 +39,7 @@ class Transaction {
   /// Serializes this transaction into bytes.
   /// This will NOT serialize the signature since it is used when signing,
   /// meaning this can NOT be used for transmiting transactions to other chains.
-  List<int> serialize() => List<int>()
+  List<int> serialize() => []
     ..addAll(utf8.encode(timestamp.toIso8601String()))
     ..addAll(fromAddress.bytes)
     ..addAll(toAddress.bytes)
@@ -47,11 +47,11 @@ class Transaction {
 
   /// Indicates that this transaction and the signature is valid.
   Future<bool> get isValid async {
-    if (fromAddress == null || amount <= 0.0 || signature == null || toAddress == fromAddress) return false;
+    if (amount <= 0.0 || toAddress == fromAddress) return false;
 
-    final key = new cryptography.PublicKey(fromAddress.bytes);
+    final key = new cryptography.SimplePublicKey(fromAddress.bytes, type: signatureAlgorithm.keyPairType);
     final signed = cryptography.Signature(signature.bytes, publicKey: key);
-    return signatureAlgorithm.verify(serialize(), signed);
+    return signatureAlgorithm.verify(serialize(), signature: signed);
   }
 
   /// Gets the human readable string for debugging.

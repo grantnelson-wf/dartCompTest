@@ -27,5 +27,4 @@ final ByteData difficulty = ByteData.zeros(1);
 final crypto.Hash hashAlgorithm = crypto.sha256;
 
 /// The algorithm to sign and validate with.
-/// see https://pub.dev/documentation/cryptography/1.4.1/#digital-signature-with-ed25519
-final cryptography.SignatureAlgorithm signatureAlgorithm = cryptography.ed25519;
+final signatureAlgorithm = cryptography.Ed25519();

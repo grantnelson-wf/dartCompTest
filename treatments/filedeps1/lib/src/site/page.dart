@@ -13,33 +13,32 @@ import 'widgetTransaction.dart';
 
 /// The page handles a collection of widgets for the block chain example site.
 class Page {
-  WidgetNewWallet _newWallet;
-  WidgetTransaction _transaction;
-  WidgetMining _mining;
-  WidgetBalance _balance;
-  WidgetPending _pending;
-  WidgetChain _chain;
+  WidgetTransaction? _transaction = null;
+  WidgetMining? _mining = null;
+  WidgetBalance? _balance = null;
+  WidgetPending? _pending = null;
+  WidgetChain? _chain = null;
 
   /// Creates a new page instance but does not setup anything yet.
-  Page() {}
+  Page();
 
   /// Sets up the page with the callback to the driver.
   void setupPage(CallBack callBack) {
-    _newWallet = WidgetNewWallet(callBack);
-    _transaction = WidgetTransaction(callBack);
-    _mining = WidgetMining(callBack);
-    _balance = WidgetBalance(callBack);
-    _pending = WidgetPending(callBack);
-    _chain = WidgetChain(callBack);
+    WidgetNewWallet newWallet = WidgetNewWallet(callBack);
+    WidgetTransaction transaction = _transaction = WidgetTransaction(callBack);
+    WidgetMining mining = _mining = WidgetMining(callBack);
+    WidgetBalance balance = _balance = WidgetBalance();
+    WidgetPending pending = _pending = WidgetPending(callBack);
+    WidgetChain chain = _chain = WidgetChain(callBack);
 
     document.body
-      ..style.backgroundColor = 'lightgrey'
-      ..append(_newWallet.widget)
-      ..append(_transaction.widget)
-      ..append(_mining.widget)
-      ..append(_balance.widget)
-      ..append(_pending.widget)
-      ..append(_chain.widget);
+      ?..style.backgroundColor = 'lightgrey'
+      ..append(newWallet.widget)
+      ..append(transaction.widget)
+      ..append(mining.widget)
+      ..append(balance.widget)
+      ..append(pending.widget)
+      ..append(chain.widget);
   }
 
   /// Updates the names for the wallets with the given set of wallets.

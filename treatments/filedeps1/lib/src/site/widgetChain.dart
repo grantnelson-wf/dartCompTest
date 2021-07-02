@@ -10,25 +10,30 @@ import 'widget.dart';
 /// A widget for showing the state of the blocks in the chain.
 class WidgetChain implements Widget {
   final CallBack _callBack;
-  DivElement _group;
-  DivElement _chainBlocks;
+  final DivElement _group;
+  final DivElement _chainBlocks;
 
   /// Creates a new block chain widget.
-  WidgetChain(this._callBack) {
+  WidgetChain._(this._callBack, this._group, this._chainBlocks);
+
+  /// Creates a new block chain widget.
+  factory WidgetChain(CallBack callBack) {
     final text = DivElement()
       ..innerText = 'The blocks which make up the current chain:'
       ..style.marginBottom = '4px';
 
-    _chainBlocks = DivElement()..style.marginLeft = '10px';
+    final chainBlocks = DivElement()..style.marginLeft = '10px';
 
-    _group = DivElement()
+    final group = DivElement()
       ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
       ..style.padding = '4px'
       ..style.marginBottom = '6px'
       ..append(text)
-      ..append(_chainBlocks);
+      ..append(chainBlocks);
+
+    return WidgetChain._(callBack, group, chainBlocks);
   }
 
   /// Gets the div element containing the widget.
@@ -56,7 +61,7 @@ class WidgetChain implements Widget {
 
   /// Updates the display fo the block chain.
   void updateChain(UnmodifiableListView<Block> chain) {
-    final blocks = List<DivElement>();
+    List<DivElement> blocks = [];
 
     for (Block block in chain) {
       final blockData = TableElement()

@@ -17,14 +17,13 @@ class Block {
 
   /// Creates a new block with the given previous block's hash
   /// and the transactions for this block.
-  Block(ByteData prevHash, [List<Transaction> transactions]) {
-    _timestamp = DateTime.now();
-    _transactions = transactions ?? List<Transaction>();
-    _previousHash = prevHash;
-    _hash = null;
-    _nonce = 0;
-    _minerAddress = null;
-  }
+  Block(ByteData prevHash, [List<Transaction> transactions = const []])
+      : _timestamp = DateTime.now(),
+        _transactions = transactions,
+        _previousHash = prevHash,
+        _hash = ByteData.empty(),
+        _nonce = 0,
+        _minerAddress = ByteData.empty();
 
   /// Timestamp is the time this block was created at.
   DateTime get timestamp => _timestamp;
@@ -52,7 +51,7 @@ class Block {
   /// it is used when calculating the hash, meaning this can NOT be used
   /// for transmiting blocks to other chains.
   List<int> serialize() {
-    var data = List<int>()
+    List<int> data = []
       ..addAll(_previousHash.bytes)
       ..addAll(utf8.encode(_timestamp.toIso8601String()))
       ..addAll(utf8.encode(_nonce.toString()))

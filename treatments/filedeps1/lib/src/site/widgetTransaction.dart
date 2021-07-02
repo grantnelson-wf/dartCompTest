@@ -9,13 +9,19 @@ import 'widget.dart';
 /// A widget for adding new pending transactions to the chain.
 class WidgetTransaction implements Widget {
   final CallBack _callBack;
-  DivElement _group;
-  SelectElement _transactFromName;
-  SelectElement _transactToName;
-  InputElement _transactAmount;
+  final DivElement _group;
+  final SelectElement _transactFromName;
+  final SelectElement _transactToName;
+  final InputElement _transactAmount;
 
   /// Creates a new transaction widget.
-  WidgetTransaction(this._callBack) {
+  WidgetTransaction._(this._callBack, this._group, this._transactFromName, this._transactToName, this._transactAmount,
+      InputElement addButton) {
+    addButton.onClick.listen(_onMakeTransaction);
+  }
+
+  /// Creates a new transaction widget.
+  factory WidgetTransaction(CallBack callBack) {
     final text = new DivElement()
       ..innerText = 'Create a new transaction which will pend until the next block. ' +
           'The wallets must be different and the amount must be greater than zero:'
@@ -25,7 +31,7 @@ class WidgetTransaction implements Widget {
       ..innerText = 'From:'
       ..style.marginRight = '2px';
 
-    _transactFromName = new SelectElement()
+    final transactFromName = new SelectElement()
       ..style.width = '200px'
       ..style.marginRight = '4px';
 
@@ -33,30 +39,29 @@ class WidgetTransaction implements Widget {
       ..innerText = 'To:'
       ..style.marginRight = '2px';
 
-    _transactToName = new SelectElement()
+    final transactToName = new SelectElement()
       ..style.width = '200px'
       ..style.marginRight = '4px';
 
-    _transactAmount = new InputElement()
+    final transactAmount = new InputElement()
       ..type = 'number'
       ..style.width = '200px'
       ..style.marginRight = '4px';
 
     final addButton = new InputElement()
       ..type = 'submit'
-      ..value = 'Transact'
-      ..onClick.listen(_onMakeTransaction);
+      ..value = 'Transact';
 
     final nameDiv = new DivElement()
       ..style.display = 'flex'
       ..append(fromText)
-      ..append(_transactFromName)
+      ..append(transactFromName)
       ..append(toText)
-      ..append(_transactToName)
-      ..append(_transactAmount)
+      ..append(transactToName)
+      ..append(transactAmount)
       ..append(addButton);
 
-    _group = new DivElement()
+    final group = new DivElement()
       ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
@@ -64,6 +69,8 @@ class WidgetTransaction implements Widget {
       ..style.marginBottom = '6px'
       ..append(text)
       ..append(nameDiv);
+
+    return WidgetTransaction._(callBack, group, transactFromName, transactToName, transactAmount, addButton);
   }
 
   /// Gets the div element containing the widget.
@@ -71,9 +78,9 @@ class WidgetTransaction implements Widget {
 
   /// Handles when the transact button is clicked.
   void _onMakeTransaction(_) {
-    final fromName = _transactFromName.value;
-    final toName = _transactToName.value;
-    final amount = double.tryParse(_transactAmount.value);
+    final fromName = _transactFromName.value ?? '';
+    final toName = _transactToName.value ?? '';
+    final amount = double.tryParse(_transactAmount.value ?? '-1');
     if (amount == null || amount <= 0.0) return;
     _callBack.newTransaction(fromName, toName, amount);
     _transactAmount.value = '';
@@ -81,8 +88,8 @@ class WidgetTransaction implements Widget {
 
   /// Updates the names for the wallets with the given set of wallets.
   void updateWalletNames(UnmodifiableListView<Wallet> wallets) {
-    final fromOptions = List<OptionElement>();
-    final toOptions = List<OptionElement>();
+    List<OptionElement> fromOptions = [];
+    List<OptionElement> toOptions = [];
     for (Wallet wallet in wallets) {
       final name = wallet.name;
       fromOptions.add(OptionElement()
@@ -93,12 +100,12 @@ class WidgetTransaction implements Widget {
         ..label = name);
     }
 
-    final fromValue = _transactFromName.value;
+    final fromValue = _transactFromName.value ?? '';
     _transactFromName.children.clear();
     _transactFromName.children.addAll(fromOptions);
     if (fromValue.isNotEmpty) _transactFromName.value = fromValue;
 
-    final toValue = _transactToName.value;
+    final toValue = _transactToName.value ?? '';
     _transactToName.children.clear();
     _transactToName.children.addAll(toOptions);
     if (toValue.isNotEmpty) _transactToName.value = toValue;

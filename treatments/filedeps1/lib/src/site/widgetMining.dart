@@ -6,34 +6,38 @@ import 'widget.dart';
 /// A widget for starting and cancelling the mining group.
 class WidgetMining implements Widget {
   final CallBack _callBack;
-  DivElement _group;
-  InputElement _startButton;
-  InputElement _cancelButton;
+  final DivElement _group;
+  final InputElement _startButton;
+  final InputElement _cancelButton;
 
   /// Creates the mining group control widget.
-  WidgetMining(this._callBack) {
+  WidgetMining._(this._callBack, this._group, this._startButton, this._cancelButton) {
+    _startButton.onClick.listen(_onStartMining);
+    _cancelButton.onClick.listen(_onCancelMining);
+  }
+
+  /// Creates the mining group control widget.
+  factory WidgetMining(CallBack callBack) {
     final text = DivElement()
       ..innerText = 'Start mining the next block with all the wallets:'
       ..style.marginBottom = '4px';
 
-    _startButton = InputElement()
+    final startButton = InputElement()
       ..type = 'submit'
       ..value = 'Start'
-      ..style.marginRight = '4px'
-      ..onClick.listen(_onStartMining);
+      ..style.marginRight = '4px';
 
-    _cancelButton = InputElement()
+    final cancelButton = InputElement()
       ..type = 'submit'
       ..value = 'Cancel'
-      ..disabled = true
-      ..onClick.listen(_onCancelMining);
+      ..disabled = true;
 
     final nameDiv = DivElement()
       ..style.display = 'flex'
-      ..append(_startButton)
-      ..append(_cancelButton);
+      ..append(startButton)
+      ..append(cancelButton);
 
-    _group = DivElement()
+    final group = DivElement()
       ..style.backgroundColor = 'white'
       ..style.border = '1px solid black'
       ..style.borderLeft = '6px solid darkred'
@@ -41,6 +45,8 @@ class WidgetMining implements Widget {
       ..style.marginBottom = '6px'
       ..append(text)
       ..append(nameDiv);
+
+    return WidgetMining._(callBack, group, startButton, cancelButton);
   }
 
   /// Gets the div element containing the widget.

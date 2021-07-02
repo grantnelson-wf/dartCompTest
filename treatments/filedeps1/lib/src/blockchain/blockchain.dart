@@ -20,12 +20,11 @@ class BlockChain {
   event.Event _onNewBlock;
 
   /// Creates a new block chain with the given settings.
-  BlockChain() {
-    _chain = List<Block>();
-    _pending = List<Transaction>();
-    _onNewTransaction = event.Event();
-    _onNewBlock = event.Event();
-  }
+  BlockChain()
+      : _chain = [],
+        _pending = [],
+        _onNewTransaction = event.Event(),
+        _onNewBlock = event.Event();
 
   /// This event is fired when a transaction is added to the pending transactions.
   event.Event get onNewTransaction => _onNewTransaction;
@@ -70,14 +69,14 @@ class BlockChain {
 
   /// Creates a new transaction and adds it to the pending transactions.
   /// Returns true if the transaction was added, false if not.
-  Future<bool> createTransaction(cryptography.KeyPair fromKeys, ByteData toAddress, double amount) async {
+  Future<bool> createTransaction(cryptography.SimpleKeyPair fromKeys, ByteData toAddress, double amount) async {
     final transaction = await Transaction.createAndSign(fromKeys, toAddress, amount);
     return addTransaction(transaction);
   }
 
   /// Adds a new transaction to the pending transactions.
   /// Returns true if the transaction was added, false if not.
-  Future<bool> addTransaction(Transaction transaction) async {
+  Future<bool> addTransaction(Transaction? transaction) async {
     if (transaction == null) return false;
     if (!await transaction.isValid) return false;
     if (_pending.contains(transaction)) return false;
@@ -91,7 +90,7 @@ class BlockChain {
   }
 
   /// Gets the previous hash value or an empty string if chain is empty.
-  ByteData get _previousHash => _chain.isNotEmpty ? _chain.last?.hash : ByteData([]);
+  ByteData get _previousHash => (_chain.isNotEmpty ? _chain.last.hash : null) ?? ByteData.empty();
 
   /// Constructs the next block to start mining.
   ///
@@ -99,11 +98,11 @@ class BlockChain {
   /// should be included since they can't all be included in the block.
   /// With actual block chains overdraw protection should be inforced too.
   /// Transactions must be valid to be put into pending, so they should be still valid.
-  Block get nextBlock => _pending.isEmpty ? null : new Block(_previousHash, List<Transaction>.from(_pending));
+  Block? get nextBlock => _pending.isEmpty ? null : new Block(_previousHash, List<Transaction>.from(_pending));
 
   /// Appends the given block into the list if it is
   /// valid and follows the previous block.
-  void appendBlock(Block block) async {
+  void appendBlock(Block? block) async {
     if (block == null) return;
     if (!await block.isValid) return;
     if (block.previousHash != _previousHash) return;
@@ -122,7 +121,7 @@ class BlockChain {
 
   /// Determines if the block chain is valid or not.
   Future<bool> get isValid async {
-    ByteData previousHash;
+    ByteData previousHash = ByteData.empty();
     for (Block block in _chain) {
       if (block.previousHash == previousHash) return false;
       if (!await block.isValid) return false;

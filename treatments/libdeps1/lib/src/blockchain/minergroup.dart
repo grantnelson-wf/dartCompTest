@@ -11,16 +11,16 @@ class MinerGroup implements Cancelable {
   final BlockChain chain;
 
   /// Creates a new miner group for the given chain.
-  MinerGroup(this.chain) {
+  MinerGroup(this.chain)
+      : _miners = [],
+        _onChanged = event.Event() {
     this.chain.onNewBlock + _onNewBlock;
-    _miners = List<Miner>();
-    _onChanged = event.Event();
   }
 
   /// Starts mining the new block for the chain.
   /// If null is returned then there are no transactions to mine,
   /// otherwise the running miner is returned which can be cancelled.
-  Future<Cancelable> start(ByteData minerAddress) async {
+  Future<Cancelable?> start(ByteData minerAddress) async {
     final block = chain.nextBlock;
     if (block == null) return null;
 
@@ -43,7 +43,7 @@ class MinerGroup implements Cancelable {
   int get minerCount => _miners.length;
 
   /// Handles when a new block is added to the chain.
-  void _onNewBlock(event.EventArgs _) => cancel();
+  void _onNewBlock(event.EventArgs? _) => cancel();
 
   /// Cancels all running miners.
   /// Miners will finish current attempt before quitting.

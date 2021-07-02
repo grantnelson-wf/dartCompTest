@@ -7,6 +7,9 @@ class ByteData {
   /// Creates a new data object.
   ByteData(this.bytes);
 
+  /// Creates new data which has no value.
+  factory ByteData.empty() => ByteData([]);
+
   /// Creates new data which is just the [count] number of zeros.
   factory ByteData.zeros(int count) => ByteData(List<int>.filled(count, 0));
 
@@ -28,7 +31,7 @@ class ByteData {
   @override
   bool operator ==(Object other) {
     if (other is! ByteData) return false;
-    final obytes = (other as ByteData).bytes;
+    final obytes = other.bytes;
     final count = obytes.length;
     if (bytes.length != count) return false;
     for (int i = 0; i < count; i++) {
