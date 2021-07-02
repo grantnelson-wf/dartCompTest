@@ -70,7 +70,7 @@ func addTreatments_FileVsLib_Generated_Dart2js(trial *trial.Trial) {
 // This expects generated files with `-rate 2 -depth 8 -scalar 2`.
 // Both will compile with Dart2js. Note that the commands are relative to the given path.
 func addTreatments_FileVsLib_Generated_UpdateLeaves_Dart2js(trial *trial.Trial) {
-	fraction := 0.01 // 0.1
+	fraction := 0.1
 
 	trial.AddTreatment().
 		Name(`File_Dep`).
