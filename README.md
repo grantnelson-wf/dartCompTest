@@ -5,6 +5,8 @@ Experimental test of dart compiling different type of code bases.
 ## References
 
 - [Guide to creating dart library packages](https://dart.dev/guides/libraries/create-library-packages)
+- [Write-up of results](https://staging.wdesk.org/a/QWNjb3VudB80ODMwNDcyMDE4MzI5NjAw/presentation/0dde949b3bc5478a80f197e01c5ab62f/r/-1/v/1/sec/0dde949b3bc5478a80f197e01c5ab62f_549755813969)
+- [Export of write-up (Jul 2, 21)](./results/Dart%20Build%20Experiment%20Results.pdf)
 
 ## Setting up the Experiment
 
